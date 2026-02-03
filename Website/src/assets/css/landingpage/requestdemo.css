@@ -1,0 +1,325 @@
+
+
+.requestdemo-block-ui {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    position: fixed;
+    backdrop-filter: blur(3px);
+    background: rgba(0,0,0,.5);
+    transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+}
+
+.landing-requestdemo-main {
+
+    position: fixed;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+
+    width: 1000px;
+    height: 80%;
+
+    display: flex;
+    flex-direction: row-reverse;
+
+    background: var(--bg-light-color);
+    border-radius: 6px;
+
+}
+.landing-requestdemo-main .requestdemo-section-left{
+    width: calc(100% - 500px);
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    background: #e1f1ff;
+
+    border-radius:  6px 0 0 6px ;
+}
+
+.landing-requestdemo-main .requestdemo-section-right{
+    width: 500px;
+    height: 100%;
+    padding: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    border-radius:  0 6px 6px 0 ;
+}
+.landing-requestdemo-main .requestdemo-section-right .requestdemo-close-btn{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    color: var(--dark-font-color);
+
+    width:  30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 1000px;
+}
+.landing-requestdemo-main .requestdemo-section-right .requestdemo-close-btn .icon{
+    width: 30px;
+    height: 30px;
+}
+.landing-requestdemo-main .requestdemo-section-right .requestdemo-close-btn .icon svg{
+    width: inherit;
+    height: inherit;
+}
+.landing-requestdemo-main .requestdemo-section-right .requestdemo-close-btn:hover{
+    background: var(--hover-color);
+}
+
+.landing-requestdemo-main .requestdemo-section-right .form-section-header{
+    width: 100%;
+    height: 80px;
+
+    display: flex;
+    flex-direction: column;
+    gap:5px;
+    justify-content: center;
+    text-align: center;
+}
+.landing-requestdemo-main .requestdemo-section-right .form-section-header .title{
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--dark-font-color);
+}
+.landing-requestdemo-main .requestdemo-section-right .form-section-header .description{
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--gray-font-color);
+}
+
+.landing-requestdemo-main .requestdemo-section-right .form-section-buttons{
+    width: 100%;
+    height: 50px;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.landing-requestdemo-main .requestdemo-section-right .form-section-buttons .form-submit-button{
+    width: 90%;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--light-font-color);
+    background: var(--primary-color);
+    outline: none;
+    border: none;
+    transition: all .3s ease;
+}
+.landing-requestdemo-main .requestdemo-section-right .form-section-buttons .form-submit-button:hover{
+    background: var(--primary-dark-color);
+}
+
+.landing-requestdemo-main .requestdemo-section-right .form-section-inputs{
+    width: 100%;
+    height: calc(100% - 170px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+.landing-requestdemo-main .requestdemo-section-right .form-section-inputs .form-input{
+    width: 95%;
+    height: 40px;
+}
+.landing-requestdemo-main .requestdemo-section-right .form-section-inputs .form-textarea{
+    width: 95%;
+    height: 150px !important;
+}
+
+.landing-requestdemo-main .requestdemo-section-right .form-section-inputs .form-input select,
+.landing-requestdemo-main .requestdemo-section-right .form-section-inputs .form-input input,
+.landing-requestdemo-main .requestdemo-section-right .form-section-inputs .form-input textarea
+{
+    width: 100%;
+    height: 100%;
+    border: 1px solid #e6e6e6;
+    outline: none;
+    padding: 9px 12px;
+    font-size: 14px;
+    color: var(--dark-font-color);
+    resize: none;
+}
+.landing-requestdemo-main .requestdemo-section-right .form-section-inputs .form-input select:focus,
+.landing-requestdemo-main .requestdemo-section-right .form-section-inputs .form-input input:focus,
+.landing-requestdemo-main .requestdemo-section-right .form-section-inputs .form-input textarea:focus{
+    border-color: var(--primary-color);
+}
+
+
+@media only screen and (max-width: 1050px) {
+    .landing-requestdemo-main {
+        width: 500px;
+        flex-direction: column;
+        height: 90%;
+
+        overflow-y: auto;
+        overflow-x: hidden;
+
+    }
+    .landing-requestdemo-main .requestdemo-section-left{
+        width: 100%;
+        height: max-content;
+        gap: 30px !important;
+    }
+    .landing-requestdemo-main .requestdemo-section-right{
+        width: 100%;
+
+        height: max-content;
+        gap: 50px !important;
+    }
+}
+@media only screen and (max-width: 550px) {
+    .landing-requestdemo-main {
+        width: 95%;
+        height: 90%;
+    }
+
+}
+
+
+
+
+
+
+
+.landing-requestdemo-main .requestdemo-section-main{
+
+    padding: 40px 30px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+}
+
+
+.landing-requestdemo-main .requestdemo-section-main .requestdemo-header{
+    width: 100%;
+    height: 50px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    
+}
+.landing-requestdemo-main .requestdemo-section-main .requestdemo-header .title{
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--dark-font-color);
+
+}
+.landing-requestdemo-main .requestdemo-section-main .requestdemo-social-items{
+    width: 100%;
+    height: 50px;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 15px;
+
+}
+.landing-requestdemo-main .requestdemo-section-main .requestdemo-social-items .requestdemo-social-item{
+
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}   
+.landing-requestdemo-main .requestdemo-section-main .requestdemo-social-items .requestdemo-social-item svg path{
+
+  fill: var(--dark-font-color);
+  transition: all 0.3s ease;
+}   
+.landing-requestdemo-main .requestdemo-section-main .requestdemo-social-items .requestdemo-social-item:hover svg path{
+
+  fill: var(--primary-color);
+}   
+.landing-requestdemo-main .requestdemo-section-main .requestdemo-social-items .requestdemo-social-item svg{
+
+    width: inherit;
+    height: inherit;
+}   
+
+.landing-requestdemo-main .requestdemo-section-main .requestdemo-detials-items{
+    width: 100%;
+    height: calc(100% - 370px);
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.landing-requestdemo-main .requestdemo-section-main .requestdemo-detials-items .requestdemo-detials-item{
+    width: 100%;
+    height: 50px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.landing-requestdemo-main .requestdemo-section-main .requestdemo-detials-items .requestdemo-detials-item .icon{
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 1000px;
+}
+.landing-requestdemo-main .requestdemo-section-main .requestdemo-detials-items .requestdemo-detials-item .icon svg{
+    width:  24px;
+    height:  24px;
+}
+.landing-requestdemo-main .requestdemo-section-main .requestdemo-detials-items .requestdemo-detials-item .icon svg path{ 
+    fill: var(--success-color)
+}
+.landing-requestdemo-main .requestdemo-section-main .requestdemo-detials-items .requestdemo-detials-item .value{ 
+    font-size: 16px;
+    font-weight: 450;
+    color: var(--dark-font-color);
+    letter-spacing: .5px;
+}
+.landing-requestdemo-main .requestdemo-section-main .requestdemo-banner-items{ 
+    width: 100%;
+    height: 300px;
+
+    display: flex;
+}
+.landing-requestdemo-main .requestdemo-section-main .requestdemo-banner-items .requestdemo-banner-item{
+    width: 100%;
+    height: 100%;
+}
+.landing-requestdemo-main .requestdemo-section-main .requestdemo-banner-items .requestdemo-banner-item img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media only screen and (max-width: 550px) {
+    .landing-requestdemo-main .requestdemo-section-main{
+        padding: 25px 20px;
+    }
+}

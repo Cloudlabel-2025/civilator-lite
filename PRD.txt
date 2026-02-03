@@ -1,0 +1,196 @@
+Construction Management WebApp with all the given features and workflow
+
+Ui/UX:
+
+- Make Sure it should be very very user-friendly
+- The Action flow for any actions like creatinf or deleting and mainly in Add task Progress it should be very easy with minimal steps
+
+Tech Stack:
+
+- Map based Integration: Use Leaftlet.js
+- Location Search API: Use any free opensource APIs
+- Make sure to save all color code and Color theme in :root in css
+
+Main Pages:
+
+1. Dashboard (Overall All sites Dashboard)
+
+   - (Top cards with icon) [Total Sites | OnGoing Sites | Completed Sites]
+   - (Pie Chart) Over all Profit/Loss Chart
+   - (Bar Chart) Overy all Expense breakdown by expense categories [show all categories based on data]
+   - Suggest other overall charts for all sites.
+
+2. Sites
+
+   - Card View of all Sites with their status (Completion percentage) + Client name in bottom
+   - Action Options like Edit Site, Delete Site
+   - Can Create Site with all these details:
+     1. Site Name
+     2. Site Description
+     3. Client Details (name, phone, email)
+     4. Total Site Estimate Amount
+     5. Start Date and End date
+     6. Site Address with State Selection Option
+     7. Site Geo Radius Selection in Map, Options: Select in map (use leaflet maps for this, VERY IMPORTANT Do not use Google Map or any Google APIs)
+     8. Site team (Select option of select multiple engineers)
+
+3. Vendors
+   - Table View of all Vendors with their Categoryies
+   - Action Options like Edit Vendor, Delete Vendor
+   - Can Create Vendor with all these details:
+     1. Vendor Name
+     2. Vendor Category (Material | Labours | Other)
+     3. Contact Person (Name | Phone)
+     4. Business Address
+     5. Financial Details
+        - GSTIN (Make sure to enter a 15-digit GSTIN code)
+        - PAN Number
+4. Employees
+   - Table View of all Employees with their Designations
+   - Action Options like Edit Employee, Delete Employee
+   - Can Create Employee with all these details:
+     1. Employee Name
+     2. Employee Role (Get roles and show in dropdown from Role management)
+     3. Phone Number
+     4. Email ID
+5. Master Database (Tab view of Materials, Brands, Labour Types)
+
+   - Tab View of Materials, Brands, Labour Types
+   - Materials Tab:
+     - Table View of all Materials
+     - Action Options like Edit, Delete
+     - Can Create material with all these details:
+       1. Name
+       2. Description
+       3. Unit
+       4. Max Unit rate
+       5. Photo (Optionl)
+   - Brands Tab:
+
+     - Table View of all Brands
+     - Action Options like Edit, Delete
+     - Can Create Brand with all these details:
+       1. Name
+       2. Description
+
+   - Labour Types Tab:
+     - Table View of all Labour Types with price
+     - Action Options like Edit, Delete
+     - Can Create Labour Type with all these details:
+       1. Labour Type Name
+       2. Max Unit Amount
+
+6. Role Management (Role access each menus with options (view, edit, create, delete))
+
+   - Table View of Roles
+   - Action Options like Edit, Delete
+   - Can Create Role with all these details (Give Quick Select option also):
+     1. Role Name
+     2. Access for all menus with View, Create, Edit, Delete option
+
+7. Settings (Tabe view of My Profile, Company, Customer App Settings)
+   - Tab View of My Profile, Company, Customer App Settings
+   - My Profile Tab with edit:
+     - Profile photo
+     - Name
+     - Phone
+     - Email
+   - Company Tab with edit:
+     - Logo
+     - Name
+     - Phone
+     - Email
+     - Addresss
+     - GSTIN (Make sure to enter a 15-digit GSTIN code)
+     - PAN Number
+     - Website url
+   - Customer App Settings Tab with edit:
+     - Visibale Comapny Name (Example: `Archo Builders`)
+     - Sub url (Example Value: `archo-builders`) Auto convert based on Visibale Comapny Name
+     - Color Theme
+     - Show Customer Portal URL with this info (Share with your customer to login)
+       -> When Clicked on this need to copy this formated url automatically and also need to show an Alert: `Customer Portal URL copied`
+       Example: https://customer.civilator.in/archo-builders
+
+Site Pages (After opening a site):
+
+1. Site Dashboard
+   - (Pie Chart) Overview with Estimated Amount, Expense Amount, Profit Amount
+   - (Use relatable chat for this) Project Task Status for [Total tasks, Inprogress, Completed, Upcoming, Delayed]
+   - (Row Card View) Overdue Credit Payments (List of all overdued credit expense records with Expense ID, Category, Amount as value (Example: `₹30.00K`))
+   - (Multi Chart) Expense Breakdown (List all expense category and their total expense)
+   - (Line Chart) Client Payments (List of all Client payment by data and amount)
+   - (Row Card View) Delayed Tasks (List of all delayed tasks with Task name, End date, days delayed as value (Example: `4days`))
+2. Tasks
+
+   - Table View of all Tasks (Make this table Xl like edit option, on table's row edit by double clicking the cell it should show related input type like text or select or date mor number)
+   - Action Options like Edit, Delete
+   - Can Create task with all these details:
+     1. Name
+     2. Description
+     3. Priority (Low, Medium, High)
+     4. Start Date and End Date
+     5. Auto Calculated Duration (days)
+     6. Assign To option (Assign this task to any Employees)
+   - After Creating Tasks:
+     - Each Task shoud have all these tabs web its opened [Details | Timeline | Photos | Comments (Chat like system with chat history)]
+     - Details tab:
+       Show All basic details about Tasks
+     - Timeline Tab:
+       - Show Timeline history by dates each item should show Progress Update percentage like this (Progress Update - 32%), and time with username like this `On 23:18, 11/09/2025 by Rajajayaruban T`
+       - and with Photo if uploaded like updating the progress
+       - Show Add task Progess in bottom buttom, ask for these details in that tab:
+         1. Top Tab with these options [Update Progerss (default selected) | No Progress]
+         2. Work done today (Show Slider bar)
+         3. Materials Used (Optional) with add material option (Material dropdown, Quantity (unit))
+         4. Add Photos (Optional) -> Upload multiple photos, it should add the currenttimestap and location address in bottom of all photos uploading (Overlay this text in all images and return the added image)
+         5. Remark textarea
+     - Photos tab (Show all photos related to this task)
+     - Comments tab:
+       - Chat like system with chat history
+       - In bottom it should show small textarea and send button with arrow icon only
+       - Make sure it should be similar like Chat View
+
+3. Received Payments:
+
+   - Top Cards [Total Balance Amount | Client Amount | My Own Amount]
+   - Table View of all Received Payments
+   - Action Options like Edit, Delete
+   - Can Create receive payment with all these details:
+     1. Payment From (Client Payment | My Amount)
+     2. Amount
+     3. Date (Autoselect current date)
+     4. Payment Method
+     5. Remark
+     6. Add Photos (Optional)
+
+4. Expense Management:
+   - Top Cards [Total Expense Amount | Due Amount | Paid Amount]
+   - Table View of all Expense records
+   - Action Options like Edit, Delete
+   - Can Create Expense record with all these details:
+     1. Payment Type select (Paid | Credit)
+     2. Amount
+     3. Date (Autoselect current date)
+     4. Expense Category (Select Option)
+     5. Payment Method
+     6. Reason
+     7. Add Photos (Optional)
+5. Material Management:
+
+   - Table View of all Materials
+   - Action Options like Edit, Delete
+   - Can Buy Material with all these details:
+     1. Material (Select from Master Database)
+     2. Amount (Auto fetch amount from selected material and that should be the max amount, user cant able to set more than that auto fetched amount)
+     3. Date (Autoselect current date)
+     4. Quantity (Get Unit from selected material and show near Quantity label like this (`Quantity (box)`))
+     5. vendor_id 
+     5. nendor_name
+     5. Payment Type select (Paid | Credit)
+     6. Payment Method
+     7. Remark
+     8. Add Photos (Optional)
+
+6. overall Finance Dashboard
+   - Create a best Impact full eagle view Finance Dashboard based on the data we have

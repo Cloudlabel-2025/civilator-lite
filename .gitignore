@@ -1,0 +1,12 @@
+node_modules/
+.next/
+dist/
+
+.env
+.env.*
+*.env
+
+Website/.env
+Website/server/.env
+WebApp/backend/*.env
+WebApp/frontend-nextjs/.env.local

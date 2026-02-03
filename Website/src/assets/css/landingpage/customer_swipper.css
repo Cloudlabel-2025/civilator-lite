@@ -1,0 +1,76 @@
+
+
+
+
+.project-customer_swipper-main{
+    width: 100%;
+    height: max-content;
+
+    display: flex;
+    flex-direction: column;
+   align-items: center;
+   padding: 40px 0;
+}
+
+.project-customer_swipper-main .customer_swipper-header{
+    width: 100%;
+    height: max-content;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.project-customer_swipper-main .customer_swipper-header .header-title{
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 2.5rem;
+    color: var(--dark-font-color);
+}
+.project-customer_swipper-main .customer_swipper-content-main{
+    width: 100%;
+    max-width: var(--max-width);
+    height: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding-top: 20px;
+    padding-bottom: 40px;
+    
+}
+.project-customer_swipper-main .customer_swipper-content-main .customer_swipper-slide{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    outline: none;
+}
+
+.project-customer_swipper-main .customer_swipper-content-main .customer_swipper-slide img{
+    width: max-content;
+    height: 80px;
+    object-fit: contain;
+    outline: none;
+    transition: all .25s ease-in-out;
+    border: 1px solid var(--border-color)
+}
+
+.project-customer_swipper-main .customer_swipper-content-main .customer_swipper-slide img:hover{
+  border-color: var(--primary-color);
+}
+
+
+
+.swiper {
+    width: 100%;
+    height: 140px;
+}
+
+
+
+@media only screen and (max-width: 640px) {
+
+
+}

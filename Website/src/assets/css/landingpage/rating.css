@@ -1,0 +1,107 @@
+.project-landingachievements-main{
+    width: 100%;
+    height: max-content;
+  
+    position: relative;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    padding: 40px 5%;
+}
+
+.project-landingachievements-main .landingachievements-content-main{
+    width: 100%;
+    height: 100%;
+    position: relative;
+    max-width: var(--max-width);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 25px;
+ 
+    
+}
+.project-landingachievements-main .landingachievements-item{
+   
+    display: flex;    
+    gap: 15px;
+    align-items: center;
+}
+.project-landingachievements-main .landingachievements-item .detials{
+    display: flex;
+    flex-direction: column;
+}
+.project-landingachievements-main .landingachievements-item .detials .title{
+   font-size: 27px;
+   font-weight: 700;
+   color: var(--mid-black-font-color);
+   font-family: 'Inter', sans-serif;
+}
+.project-landingachievements-main .landingachievements-item .detials .desc{
+    font-size: 15px;
+    line-height: 1.7;
+    font-weight: 400;
+    font-family: 'Inter', sans-serif;
+}
+.project-landingachievements-main .landingachievements-item .icon{
+  width: 100px;
+  height: 100px;
+  border-radius: 1000px;
+  background-color: transparent;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.project-landingachievements-main .landingachievements-item .icon svg{
+    width: calc(100% /2);
+    height: calc(100% /2);
+}
+/* 1st icon */
+.project-landingachievements-main .landingachievements-item:first-child .icon{
+    background: linear-gradient(90deg, rgba(255, 193, 218, 1) 0%, rgba(255, 255, 255,1) 100%);
+}
+.project-landingachievements-main .landingachievements-item:first-child .icon svg{
+    fill: rgba(225, 0, 86, 1);
+}
+/* 2st icon */
+.project-landingachievements-main .landingachievements-item:nth-child(2) .icon{
+    background: linear-gradient(90deg, rgba(193, 255, 236, 1) 0%, rgba(255, 255, 255,1) 100%);
+}
+.project-landingachievements-main .landingachievements-item:nth-child(2) .icon svg{
+    fill: rgba(0, 198, 178, 1);
+}
+/* 3st icon */
+.project-landingachievements-main .landingachievements-item:nth-child(3) .icon{
+    background: linear-gradient(90deg, rgba(193, 220, 255, 1) 0%, rgba(255, 255, 255,1) 100%);
+}
+.project-landingachievements-main .landingachievements-item:nth-child(3) .icon svg{
+    fill: rgba(0, 166, 225, 1);
+}
+/* 4st icon */
+.project-landingachievements-main .landingachievements-item:nth-child(4) .icon{
+    background-image: linear-gradient(90deg, rgba(248, 193, 255, 1) 0%, rgba(253, 240, 255, 1) 100%);
+}
+.project-landingachievements-main .landingachievements-item:nth-child(4) .icon svg{
+    fill: rgba(182, 66, 229, 1);
+}
+
+@media only screen and (max-width: 600px) {
+    .project-landingachievements-main{
+        background: #fff;
+    }
+    .project-landingachievements-main .landingachievements-content-main{
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        
+    }
+    .project-landingachievements-main .landingachievements-item .icon{
+        width: 80px;
+        height: 80px;
+    }
+}

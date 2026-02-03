@@ -1,0 +1,176 @@
+
+.project-featuresLeverage-main{
+    width: 100%;
+    height: max-content;
+  
+    position: relative;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+}
+
+.project-featuresLeverage-main .featuresLeverage-content-main{
+    width: 100%;
+    max-width: var(--max-width);
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 5%;
+    
+}
+.project-featuresLeverage-main .featuresLeverage-heading{
+    width: 100%;
+    height: max-content;
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+    
+}
+.project-featuresLeverage-main .featuresLeverage-heading .heading-item {
+    width: fit-content;
+    height: 35px;
+    font-size: 18px;
+    font-weight: 600;
+    padding-bottom:.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.project-featuresLeverage-main .featuresLeverage-heading .heading-item-active{
+    border-bottom: 4px solid var(--primary-color);
+}
+.project-featuresLeverage-main .featuresLeverage-content{
+    margin-top: 3rem;
+
+    width: 100%;
+    height: max-content;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.project-featuresLeverage-main .featuresLeverage-content .content-left{
+    width: 50%;
+    height: max-content;
+    display: flex;
+}
+.project-featuresLeverage-main .content-left .content-left-banner{
+    width: 80%;
+    height: 80%;
+}
+.project-featuresLeverage-main .content-left .banner-bg{
+    width: 100%;
+    height: 100%;
+
+    border: 2px solid #D6D8E7;
+    display: flex;
+    overflow: hidden;
+    border-radius: 6px;
+    flex-direction: column;
+    background-color: #ECEDF3;
+}
+.project-featuresLeverage-main .content-left .banner-bg .banner-topbar{
+    width: 100%;
+    height: max-content;
+}
+.project-featuresLeverage-main .content-left .banner-bg .banner-content{
+    width: 100%;
+    height: 100%;
+}
+.project-featuresLeverage-main .content-left .banner-bg .banner-content .banner-content-video{
+    width: 100%;
+    height: 100%;
+}
+.project-featuresLeverage-main .content-right{
+    width: 40%;
+    height: max-content;
+    
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+.project-featuresLeverage-main .content-right-title{
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.27;
+}
+.project-featuresLeverage-main .content-right-detials{
+   width: 100%;
+   height: max-content;
+   display: flex;
+   flex-direction: column;
+   gap: 20px;
+   
+    font-size: 18px;
+    font-weight: normal;
+    line-height: 30px;
+}
+
+.project-featuresLeverage-main .footer-buttons{
+   width: 100%;
+   height: max-content;
+   
+   display: flex;
+   align-items: center;
+    gap: 15px;
+}
+.project-featuresLeverage-main .footer-buttons .footer-button{
+    width: max-content;
+    padding: 0 2rem;
+    height: 50px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    border-radius: 10px;
+}
+.project-featuresLeverage-main .footer-buttons .footer-button-active{
+    background: var(--primary-color);
+    color: var(--light-font-color);
+    border: 2px solid var(--primary-color);
+    font-weight: 500;
+    transition: all .25s;
+}
+
+@media only screen and (max-width: 1300px) {
+    .project-featuresLeverage-main .content-right-title{
+        font-size: 32px;
+    }
+    .project-featuresLeverage-main .content-right-detials{
+        font-size: 16px;
+        line-height: 20px;  
+    }
+}
+@media only screen and (max-width: 1000px) {
+    .project-featuresLeverage-main .featuresLeverage-content .content-left,
+    .project-featuresLeverage-main .featuresLeverage-content .content-right{
+        width: 90%;
+    }
+    .project-featuresLeverage-main .featuresLeverage-content{
+        flex-direction: column-reverse;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 30px;
+    }
+    .project-featuresLeverage-main .featuresLeverage-content .content-left-banner{
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .project-featuresLeverage-main .content-right-title{
+        font-size: 24px;
+        text-align: center;
+    }
+    .project-featuresLeverage-main .footer-buttons{
+        justify-content: center;
+    }
+}

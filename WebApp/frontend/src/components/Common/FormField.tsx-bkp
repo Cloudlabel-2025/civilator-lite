@@ -1,0 +1,185 @@
+import React from "react";
+import { clsx } from "clsx";
+
+interface FormFieldProps {
+  label?: string;
+  label_right?: boolean;
+  type?:
+    | "text"
+    | "email"
+    | "tel"
+    | "number"
+    | "date"
+    | "textarea"
+    | "select"
+    | "radio"
+    | "checkbox"
+    | "range"
+    | "daterange"
+    | "file";
+  value: string | number | any;
+  name?: string;
+  value_label?: string;
+  max?: number;
+  max_label?: string;
+  min?: number;
+  onChange: (value: any) => void;
+  placeholder?: string;
+  required?: boolean;
+  readonly?: boolean;
+  error?: string;
+  options?: { value: string; label: string }[];
+  rows?: number;
+  multiple?: boolean;
+  className?: string;
+  inputClass?: string;
+}
+
+export const FormField: React.FC<FormFieldProps> = ({
+  label = "",
+  label_right = false,
+  type = "text",
+  name = "",
+  value,
+  value_label = "",
+  max_label = "",
+  min = 0,
+  max = Infinity,
+  onChange,
+  placeholder,
+  required,
+  error,
+  multiple,
+  readonly,
+  options,
+  rows = 3,
+  className,
+  inputClass = "",
+}) => {
+  const baseInputClasses = `w-full min-h-[50px] px-2 py-3  text-sm border border-gray-200 rounded-md shadow-sm focus:outline-none ${
+    ["radio", "checkbox"].includes(type) ? "focus:ring-0" : "focus:ring-2"
+  }  focus:ring-blue-500 focus:border-blue-500`;
+
+  const renderInput = () => {
+    switch (type) {
+      case "textarea":
+        return (
+          <textarea
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+            required={required}
+            rows={rows}
+            readOnly={readonly}
+            className={clsx(
+              baseInputClasses,
+              error && "border-red-500",
+              inputClass
+            )}
+          />
+        );
+
+      case "select":
+        return (
+          <select
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            required={required}
+            disabled={readonly}
+            className={clsx(
+              inputClass,
+              baseInputClasses,
+              readonly && "bg-gray-100 cursor-not-allowed",
+              error && "border-red-500"
+            )}
+          >
+            <option value="">Select...</option>
+            {options?.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        );
+
+      case "file":
+        return (
+          <input
+            type="file"
+            multiple={multiple}
+            readOnly={readonly}
+            name={name}
+            onChange={(e) => {
+              if (e.target.files) {
+                onChange(e.target.files);
+              }
+            }}
+            required={required}
+            className={clsx(
+              baseInputClasses,
+              readonly && "bg-gray-100 cursor-not-allowed",
+              error && "border-red-500",
+              inputClass
+            )}
+          />
+        );
+
+      default:
+        return (
+          <input
+            id={label}
+            type={type}
+            value={type === "number" ? (value ? Number(value) : "") : value}
+            min={min}
+            max={max}
+            readOnly={readonly}
+            onChange={(e) =>
+              onChange(
+                type === "number" ? Number(e.target.value) : e.target.value
+              )
+            }
+            checked={["radio", "checkbox"].includes(type) ? value : undefined}
+            placeholder={placeholder}
+            required={required}
+            className={clsx(
+              baseInputClasses,
+              readonly && "bg-gray-100 cursor-not-allowed",
+              error && "border-red-500",
+              inputClass
+            )}
+          />
+        );
+    }
+  };
+
+  return (
+    <div className={clsx("relative", className)}>
+      {!label_right && label && (
+        <label className="absolute top-[-8px] left-3 bg-white px-2 block text-sm  text-gray-500 mb-1 whitespace-nowrap">
+          {label + (value_label ? ` (${value_label})` : "")}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+      )}
+
+      {renderInput()}
+      {(max_label || (max && max !== Infinity)) && (
+        <div className="absolute top-[-12px] right-3 bg-white px-2 border border-gray-300 rounded-full flex justify-end gap-2 mt-1">
+          <p className="text-xs text-gray-500">
+            {max_label || `Max: ${max} ${value_label || ""}`}
+          </p>
+        </div>
+      )}
+      {label_right && label && (
+        <label
+          htmlFor={label}
+          id={label}
+          className="block text-sm font-medium text-gray-700 whitespace-nowrap"
+        >
+          {label + (value_label ? ` (${value_label})` : "")}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+      )}
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+    </div>
+  );
+};

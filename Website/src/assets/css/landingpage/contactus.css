@@ -1,0 +1,100 @@
+
+.landing-requestdemo-main .contactus-section-main{
+
+    padding: 40px 30px;
+    gap: 20px;
+
+}
+
+
+.landing-requestdemo-main .contactus-section-main .contactus-header{
+    width: 100%;
+    height: 80px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    
+}
+.landing-requestdemo-main .contactus-section-main .contactus-header .title{
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--dark-font-color);
+
+}
+.landing-requestdemo-main .contactus-section-main .contactus-social-items{
+    width: 100%;
+    height: 50px;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 20px;
+
+}
+.landing-requestdemo-main .contactus-section-main .contactus-social-items .contactus-social-item{
+
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}   
+.landing-requestdemo-main .contactus-section-main .contactus-social-items .contactus-social-item svg path{
+
+  fill: var(--dark-font-color);
+  transition: all 0.3s ease;
+}   
+.landing-requestdemo-main .contactus-section-main .contactus-social-items .contactus-social-item:hover svg path{
+
+  fill: var(--primary-color);
+}   
+.landing-requestdemo-main .contactus-section-main .contactus-social-items .contactus-social-item svg{
+
+    width: inherit;
+    height: inherit;
+}   
+
+.landing-requestdemo-main .contactus-section-main .contactus-detials-items{
+    width: 100%;
+    height: calc(100% - 170px);
+
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+.landing-requestdemo-main .contactus-section-main .contactus-detials-items .contactus-detials-item{
+    width: 100%;
+    height: 50px;
+
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.landing-requestdemo-main .contactus-section-main .contactus-detials-items .contactus-detials-item .icon{
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 1000px;
+    background: var(--bg-light-color);
+}
+.landing-requestdemo-main .contactus-section-main .contactus-detials-items .contactus-detials-item .icon svg{
+    width:  18px;
+    height:  18px;
+}
+.landing-requestdemo-main .contactus-section-main .contactus-detials-items .contactus-detials-item .icon svg path{ 
+    fill: var(--primary-color);
+}
+.landing-requestdemo-main .contactus-section-main .contactus-detials-items .contactus-detials-item .value{ 
+    font-size: 16px;
+    font-weight: 450;
+    color: var(--dark-font-color);
+    letter-spacing: .5px;
+}
+
+@media only screen and (max-width: 550px) {
+    .landing-requestdemo-main .contactus-section-main{
+        padding: 20px 15px;
+    }
+}

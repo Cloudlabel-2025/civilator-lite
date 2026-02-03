@@ -1,0 +1,201 @@
+
+
+.project-featuresexplain-main{
+    width: 100%;
+    height: max-content;
+  
+    position: relative;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+
+
+    background: var(--bg-color);
+}
+
+.project-featuresexplain-main .featuresexplain-content-main{
+    width: 100%;
+    max-width: var(--max-width);
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 5%;
+    
+}
+.project-featuresexplain-main .featuresexplain-heading{
+    width: 100%;
+    height: max-content;
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+    
+}
+.project-featuresexplain-main .featuresexplain-heading .heading-item {
+    width: fit-content;
+    height: 35px;
+    font-size: 18px;
+    font-weight: 600;
+    padding-bottom:.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.project-featuresexplain-main .featuresexplain-heading .heading-item-active{
+    border-bottom: 4px solid var(--primary-color);
+}
+.project-featuresexplain-main .featuresexplain-content{
+    margin-top: 3rem;
+
+    width: 100%;
+    height: max-content;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.project-featuresexplain-main .featuresexplain-content .content-left{
+    width: 50%;
+    height: max-content;
+    display: flex;
+    justify-content: flex-end;
+}
+.project-featuresexplain-main .content-left .content-left-banner{
+    width: 80%;
+    height: 80%;
+}
+.project-featuresexplain-main .content-left .banner-bg{
+    width: 100%;
+    height: 100%;
+
+    border: 2px solid #D6D8E7;
+    display: flex;
+    overflow: hidden;
+    border-radius: 6px;
+    flex-direction: column;
+    background-color: #ECEDF3;
+}
+.project-featuresexplain-main .content-left .banner-bg .banner-topbar{
+    width: 100%;
+    height: max-content;
+}
+.project-featuresexplain-main .content-left .banner-bg .banner-content{
+    width: 100%;
+    height: 100%;
+}
+.project-featuresexplain-main .content-left .banner-bg .banner-content .banner-content-video{
+    width: 100%;
+    height: 100%;
+}
+.project-featuresexplain-main .content-right{
+    width: 40%;
+    height: max-content;
+    
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+.project-featuresexplain-main .content-right-title{
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1.27;
+}
+.project-featuresexplain-main .content-right-detials{
+   width: 100%;
+   height: max-content;
+   display: flex;
+   flex-direction: column;
+   gap: 20px;
+   
+    font-size: 18px;
+    font-weight: normal;
+    line-height: 30px;
+}
+.project-featuresexplain-main .featuresexplain-footer{
+   width: 100%;
+   height: max-content;
+   
+   display: flex;
+   align-items: center;
+   justify-content: center;
+
+   margin-top: 3rem;
+}
+.project-featuresexplain-main .featuresexplain-footer .footer-buttons{
+   width: 100%;
+   height: max-content;
+   
+   display: flex;
+   align-items: center;
+   justify-content: center;
+
+    gap: 15px;
+}
+.project-featuresexplain-main .featuresexplain-footer .footer-buttons .footer-button{
+    width: max-content;
+    padding: 0 2rem;
+    height: 50px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    border-radius: 10px;
+}
+.project-featuresexplain-main .featuresexplain-footer .footer-buttons .footer-button-active{
+    width: max-content;
+    padding: .75rem 1.5rem;
+    line-height: 1.5rem;
+    /* height: 50px; */
+    background: var(--primary-color);
+    color: var(--light-font-color);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    border-radius: .25rem;
+}
+/* .project-featuresexplain-main .featuresexplain-footer .footer-buttons .footer-button-active:hover{
+    color: var(--primary-color);
+    background: var(--light-font-color);
+} */
+
+@media only screen and (max-width: 1300px) {
+    .project-featuresexplain-main .content-right-title{
+        font-size: 32px;
+    }
+    .project-featuresexplain-main .content-right-detials{
+        font-size: 16px;
+        line-height: 20px;  
+    }
+}
+@media only screen and (max-width: 1000px) {
+    .project-featuresexplain-main .featuresexplain-content .content-left,
+    .project-featuresexplain-main .featuresexplain-content .content-right{
+        width: 90%;
+    }
+    .project-featuresexplain-main .featuresexplain-content{
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 30px;
+    }
+    .project-featuresexplain-main .featuresexplain-content .content-left-banner{
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .project-featuresexplain-main .content-right-title{
+        font-size: 24px;
+        text-align: center;
+    }
+}

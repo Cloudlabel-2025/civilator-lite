@@ -1,0 +1,59 @@
+
+
+.landing-terms_conditions-main{
+
+    width: 100%;
+    height: max-content;
+
+    display: flex;
+    justify-content: center;
+
+    padding-top: 80px;
+    padding-bottom: 80px;
+}
+.landing-terms_conditions-main .landing-terms_conditions-content{
+
+    width: 90%;
+    height: max-content;
+    max-width: 1400px;
+    display: flex;
+    flex-direction: column;
+}
+.landing-terms_conditions-main .landing-terms_conditions-content .landing-terms_conditions-header{
+
+    width: 100%;
+    height: max-content;
+    
+    display: flex;
+
+    padding: 3rem 0;
+}
+.landing-terms_conditions-main .landing-terms_conditions-content .landing-terms_conditions-header .title{
+
+    font-size: 48px;
+    font-weight: 500;
+    color: var(--dark-font-color);
+}
+.landing-terms_conditions-main .landing-terms_conditions-content .terms_conditions-content{
+
+    font-size: 20px;
+    line-height: 40px;
+}
+
+@media only screen and (max-width: 550px) {
+    .landing-terms_conditions-main{
+        padding-bottom: 20px;
+    }
+
+    .landing-terms_conditions-main .landing-terms_conditions-content .landing-terms_conditions-header{
+        padding: 1rem 0;
+    }
+    .landing-terms_conditions-main .landing-terms_conditions-content .landing-terms_conditions-header .title{
+        font-size: 38px;
+    }
+    .landing-terms_conditions-main .landing-terms_conditions-content .terms_conditions-content{
+
+        font-size: 18px;
+        line-height: 30px;
+    }
+}

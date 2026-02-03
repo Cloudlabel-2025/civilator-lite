@@ -1,0 +1,116 @@
+
+import ApiHandler from '../helpers/ApiHandler'
+
+class TasksHandler {
+
+  constructor() {
+    this.apiHandler = new ApiHandler()
+
+    this.end_point = "/tasks"
+
+
+    this.get = this.get.bind(this)
+    this.post = this.post.bind(this)
+    this.put = this.put.bind(this)
+    this.delete = this.delete.bind(this)
+    this.createTaskComment = this.createTaskComment.bind(this)
+    this.deleteTaskComment = this.deleteTaskComment.bind(this)
+  }
+
+  async get(params) {
+
+    const response = await this.apiHandler.request({
+      method: 'GET',
+      endpoint: this.end_point,
+      params: params,
+
+    })
+
+    return response
+  }
+  async post(params) {
+
+    const response = await this.apiHandler.request({
+      method: 'POST',
+      endpoint: this.end_point,
+      params: params,
+
+    })
+
+    return response
+  }
+  async put(params) {
+
+    const response = await this.apiHandler.request({
+      method: 'PUT',
+      endpoint: this.end_point,
+      params: params,
+
+    })
+
+    return response
+  }
+  async delete(params) {
+
+    const response = await this.apiHandler.request({
+      method: 'DELETE',
+      endpoint: this.end_point,
+      params: params,
+
+    })
+
+    return response
+  }
+
+  async createTaskComment(params) {
+
+    const response = await this.apiHandler.request({
+      method: 'POST',
+      endpoint: this.end_point + '/comment',
+      params: params,
+
+    })
+
+    return response
+  }
+
+
+  async deleteTaskComment(params) {
+
+    const response = await this.apiHandler.request({
+      method: 'DELETE',
+      endpoint: this.end_point + '/comment',
+      params: params,
+
+    })
+
+    return response
+  }
+
+  async updateTaskProgress(params) {
+
+    const response = await this.apiHandler.request({
+      method: 'POST',
+      endpoint: this.end_point + '/task-progress',
+      params: params,
+      header_type: 'formdata'
+    })
+
+    return response
+  }
+  async deleteTaskProgress(params) {
+
+    const response = await this.apiHandler.request({
+      method: 'DELETE',
+      endpoint: this.end_point + '/task-progress',
+      params: params,
+
+    })
+
+    return response
+  }
+
+
+}
+
+export default TasksHandler;

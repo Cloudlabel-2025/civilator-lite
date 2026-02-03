@@ -1,0 +1,59 @@
+.project-workdemo-main{
+    width: 100%;
+    height: max-content;
+  
+    position: relative;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+
+}
+
+.project-workdemo-main .workdemo-content-main{
+    width: 100%;
+    max-width: var(--max-width);
+    height:max-content;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 5%;
+    
+}
+.project-workdemo-main .workdemo-content-main .workdemo-content{
+    width: 100%;
+    height: max-content;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.project-workdemo-main .workdemo-content .heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.project-workdemo-main .workdemo-content .heading .title{
+    font-size: 2.25rem;
+    letter-spacing: .03em;
+    font-weight: 900;
+    transition: all .4s ease;
+    color: var(--mid-black-font-color);
+    text-align: center;
+}
+.project-workdemo-main .workdemo-content .heading .desc{
+    font-size: 16px !important;
+    font-weight: 400;
+    line-height: 30px;
+    text-align: center;
+}
+.project-workdemo-main .workdemo-content .demo-section{
+    width: 90%;
+    height: 100%;
+    margin-top: 2rem;
+}
+.project-workdemo-main .workdemo-content .demo-section video {
+    width: 100%!important;
+    height: 100%;
+}

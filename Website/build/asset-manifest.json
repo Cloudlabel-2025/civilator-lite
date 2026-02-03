@@ -1,0 +1,41 @@
+{
+  "files": {
+    "main.css": "/static/css/main.dc013992.css",
+    "main.js": "/static/js/main.f36417b1.js",
+    "static/media/estimate_feature.mp4": "/static/media/estimate_feature.49c7e7b0ccb20f8944af.mp4",
+    "static/media/schedule_feature.mp4": "/static/media/schedule_feature.93c8510c791b8675b4e4.mp4",
+    "static/media/bg_test.png": "/static/media/bg_test.c3d6a6b3a876a9ceb241.png",
+    "static/media/banner.png": "/static/media/banner.5dae15638aefcdff762e.png",
+    "static/media/project-manager.jpg": "/static/media/project-manager.35198a69615457718a40.jpg",
+    "static/media/site-engineer.jpg": "/static/media/site-engineer.6209658d95f7f4b59a6e.jpg",
+    "static/media/workdemo.png": "/static/media/workdemo.aad63ad5bd7d72d755ab.png",
+    "static/media/company-ownder.jpg": "/static/media/company-ownder.910ef809f7ab77299f1f.jpg",
+    "static/media/mithrava.png": "/static/media/mithrava.3a6f23c94d3cec19f3cd.png",
+    "static/media/all_devices.png": "/static/media/all_devices.247da0c349c2b30ad0e4.png",
+    "static/media/workdemo.webm": "/static/media/workdemo.1205b9ca07837368457b.webm",
+    "static/media/material_management.png": "/static/media/material_management.7c85bc2e05c155b55450.png",
+    "static/media/vendor_management.png": "/static/media/vendor_management.d038661d2c3683e4b63c.png",
+    "static/media/app_banner.png": "/static/media/app_banner.9a71f4b45738cbb3e308.png",
+    "static/media/task_management.png": "/static/media/task_management.1a3cf18c24fd291f1304.png",
+    "static/media/benefits.jpg": "/static/media/benefits.dbc4a733b5fb1566d7ec.jpg",
+    "static/media/illustration_proposal_feature.webp": "/static/media/illustration_proposal_feature.f9c84716aef0bc560274.webp",
+    "static/media/request-demo-banner-3.jpg": "/static/media/request-demo-banner-3.ad8447eeb8696364ba34.jpg",
+    "static/media/request-demo-banner-1.jpg": "/static/media/request-demo-banner-1.27569288a824b1f40a12.jpg",
+    "static/media/illustration_takeoff_feature.webp": "/static/media/illustration_takeoff_feature.97fcf05d30686a22869f.webp",
+    "static/media/request-demo-banner-4.jpg": "/static/media/request-demo-banner-4.e2c61ad4d680e27c913d.jpg",
+    "static/media/request-demo-banner-2.jpg": "/static/media/request-demo-banner-2.ff26602f195c1cef0b5a.jpg",
+    "static/media/logo1.png": "/static/media/logo1.14521ecb7795f31a7d8a.png",
+    "static/media/aarco_designers.png": "/static/media/aarco_designers.49cc6f550eaaac272600.png",
+    "static/media/pc_designs.png": "/static/media/pc_designs.17df0759f955bb1e6593.png",
+    "static/media/user.png": "/static/media/user.a6143582309785dca610.png",
+    "static/media/logo.png": "/static/media/logo.1aaedcad03f075c77c63.png",
+    "static/media/background_1.svg": "/static/media/background_1.f6a660ccf69f82dbea559652f7f8a2fe.svg",
+    "index.html": "/index.html",
+    "main.dc013992.css.map": "/static/css/main.dc013992.css.map",
+    "main.f36417b1.js.map": "/static/js/main.f36417b1.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.dc013992.css",
+    "static/js/main.f36417b1.js"
+  ]
+}
