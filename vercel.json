@@ -5,14 +5,14 @@
       "src": "WebApp/frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "WebApp/frontend/dist"
+        "distDir": "../../WebApp/frontend/dist"
       }
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/WebApp/frontend/dist/index.html"
+      "dest": "/index.html"
     }
   ]
 }
