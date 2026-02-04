@@ -1,119 +1,122 @@
 require('dotenv').config();
-require('winston-mongodb')
 
 const winston = require('winston');
-const { createLogger, format, transports } = require('winston');
 const Mailer = require('./mailer');
-const { combine, metadata, json, timestamp, label, printf } = format;
 
-const sendTo = process.env.LOG_EMAIL
+const { format, transports } = winston;
+const { combine, metadata, json, timestamp } = format;
 
+const sendTo = process.env.LOG_EMAIL;
+
+/**
+ * Winston Logger Configuration
+ * - Console logging (development)
+ * - File logging (production / debugging)
+ * - NO MongoDB dependency
+ */
 const logger = winston.createLogger({
     level: 'info',
-    format: format.combine(
+    format: combine(
+        timestamp(),
         format.errors({ stack: true }),
-        metadata({ fillExcept: ['message', 'level'] }),
+        metadata({ fillExcept: ['message', 'level', 'timestamp'] }),
         json()
     ),
-    defaultMeta: "",
     transports: [
-        new winston.transports.File({ filename: 'error.log', level: 'error' }),
-        new winston.transports.File({ filename: 'combined.log', level: 'info' }),
+        new transports.File({ filename: 'error.log', level: 'error' }),
+        new transports.File({ filename: 'combined.log' }),
+        new transports.Console({
+            format: winston.format.simple()
+        })
     ],
-
 });
-logger.add(new winston.transports.Console({
-    format: winston.format.simple(),
-}))
 
+/**
+ * Standard application log
+ */
+const setLog = (
+    url,
+    email,
+    method,
+    success,
+    message,
+    hostname,
+    level,
+    name,
+    stack
+) => {
+    const time = Date.now();
 
-const setLog = (url, email, method, success, message, hostname, level, name, stack) => {
+    logger.info(message, {
+        success,
+        url,
+        email,
+        method,
+        time,
+        host: hostname,
+        level
+    });
 
-    const time = new Date().getTime()
+    if (level === 'error') {
+        const html = `
+        <table cellspacing="0" cellpadding="4" border="1" width="100%">
+            <tr><th></th><th>INFO</th></tr>
+            <tr><td>HOST NAME</td><td>${hostname}</td></tr>
+            <tr><td>API URL</td><td>${url}</td></tr>
+            <tr><td>METHOD</td><td>${method}</td></tr>
+            <tr><td>MESSAGE</td><td>${message}</td></tr>
+            <tr><td>TIME</td><td>${new Date(time)}</td></tr>
+            <tr><td>STACK</td><td>${stack || 'N/A'}</td></tr>
+            <tr><td>USER EMAIL</td><td>${email || 'N/A'}</td></tr>
+        </table>
+        `;
 
-    logger.info(message, { success: success, url: url, "email": email, method: method, time: time, host: hostname, level: level })
-
-    if (level == "error") {
-        let html = ` 
-                 <table cellspacing="0" cellpadding="4" border="1" bordercolor="#224466" width="100%">
-                      <tr>
-                          <th></th>
-                          <th>INFO</th>
-                      </tr>
-                      <tr>
-                          <td>HOST NAME</td>
-                          <td title="5868 thread">${hostname}</td>
-                      </tr>
-                      <tr>
-                          <td>API URL</td>
-                          <td title="5868 thread">${url}</td>
-                      </tr>
-                      <tr>
-                          <td>METHOD</td>
-                          <td title="5868 thread">${method}</td>
-                      </tr>
-                      <tr>
-                          <td>MESSAGE</td>
-                          <td title="5868 thread">${message}</td>
-                      </tr>
-                      <tr>
-                      <td>TIME</td>
-                      <td title="5868 thread">${new Date(time)}</td>
-                      </tr>
-                      <tr>
-                          <td>STACK</td>
-                          <td title="5868 thread">${stack}</td>
-                      </tr>
-                      <tr>
-                          <td>USER EMAIL</td>
-                          <td title="5868 thread">${email}</td>
-                      </tr>
-                  </table>
-                `
-        Mailer({ to: sendTo, message, subject: name, html })
+        Mailer({
+            to: sendTo,
+            message,
+            subject: name || 'Application Error',
+            html
+        });
     }
-}
+};
+
+/**
+ * Internal server / fatal error log
+ */
 const setErrlog = (message, name, stack, origin, path) => {
-    const time = new Date().getTime()
-    logger.error(message, { success: false, stack: stack, name: name, time: time, origin: origin })
+    const time = Date.now();
+    const hostname = 'CivilATOR';
 
-    let hostname = "CivilATOR"
+    logger.error(message, {
+        success: false,
+        stack,
+        name,
+        time,
+        origin,
+        path
+    });
 
-    let html = `
-             <table cellspacing="0" cellpadding="4" border="1" bordercolor="#224466" width="100%">
-              <tr>
-                  <th></th>
-                  <th>INFO</th>
-              </tr>
-              <tr>
-                  <td>HOST NAME</td>
-                  <td title="5868 thread">${hostname}</td>
-              </tr>
-              <tr>
-              <td>TIME</td>
-              <td title="5868 thread">${new Date(time)}</td>
-              </tr>
-              <tr>
-                  <td>ERROR</td>
-                  <td title="5868 thread">internal Server Error </td>
-              </tr>
-              <tr>
-                  <td>MESSAGE</td>
-                  <td title="5868 thread">${message}</td>
-              </tr>
-              <tr>
-                  <td>STACK</td>
-                  <td title="5868 thread">${stack}</td>
-              </tr>
-             </table>
-            `
-    Mailer({ to: sendTo, message, subject: name, html })
+    const html = `
+    <table cellspacing="0" cellpadding="4" border="1" width="100%">
+        <tr><th></th><th>INFO</th></tr>
+        <tr><td>HOST NAME</td><td>${hostname}</td></tr>
+        <tr><td>TIME</td><td>${new Date(time)}</td></tr>
+        <tr><td>ERROR</td><td>Internal Server Error</td></tr>
+        <tr><td>MESSAGE</td><td>${message}</td></tr>
+        <tr><td>STACK</td><td>${stack || 'N/A'}</td></tr>
+    </table>
+    `;
 
+    Mailer({
+        to: sendTo,
+        message,
+        subject: name || 'Critical Server Error',
+        html
+    });
+};
 
-}
-
-
-
-module.exports = { logger, setLog, setErrlog }
-
-
+module.exports = {
+    logger,
+    setLog,
+    setErrlog
+};

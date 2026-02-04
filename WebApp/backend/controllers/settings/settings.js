@@ -18,7 +18,7 @@ class Settings {
 
             const response = await req.mongoDB.findOne(
                 mongoCollections.USERS,
-                { _id: ObjectId(user_id) }
+                { _id: new ObjectId(user_id) }
             )
 
             if (!response) return responseHandler.failedRequest({
@@ -48,7 +48,7 @@ class Settings {
 
             const response = await req.mongoDB.findOne(
                 mongoCollections.ORG,
-                { _id: ObjectId(org_id) }
+                { _id: new ObjectId(org_id) }
             )
 
             if (!response) return responseHandler.failedRequest({
@@ -87,7 +87,7 @@ class Settings {
 
             const response = await req.mongoDB.updateOne(
                 mongoCollections.USERS,
-                { _id: ObjectId(user_id) },
+                { _id: new ObjectId(user_id) },
                 { $set: updateData }
             )
 
@@ -132,7 +132,7 @@ class Settings {
 
             const response = await req.mongoDB.updateOne(
                 mongoCollections.ORG,
-                { _id: ObjectId(org_id) },
+                { _id: new ObjectId(org_id) },
                 { $set: updateData }
             )
 
