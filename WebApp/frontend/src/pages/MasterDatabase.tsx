@@ -652,7 +652,7 @@ export const MasterDatabase: React.FC = () => {
                 icon={Plus}
                 iconPosition="left"
               >
-                Add Labour Type
+                Add Labour's Type
               </Button>
             </div>
 
