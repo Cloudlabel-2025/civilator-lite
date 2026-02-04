@@ -1,0 +1,12 @@
+{
+  "name": "civilator-lite",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd WebApp/frontend && npm install && npm run build",
+    "start": "cd WebApp/backend && npm install && npm start"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
