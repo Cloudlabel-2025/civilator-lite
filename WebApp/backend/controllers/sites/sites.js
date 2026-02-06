@@ -39,6 +39,7 @@ class Sites {
                 name: 'createSite',
                 req, res,
                 message: "Site created successfully",
+                data: { id: response.insertedId.toString() }
             })
         } catch (err) {
             console.log(err);
@@ -64,7 +65,7 @@ class Sites {
                     message: "Invalid site id"
                 })
 
-                filters._id = ObjectId(id)
+                filters._id = new ObjectId(id)
             }
             if (status) filters.status = status
             if (search) filters.$or = [
@@ -106,7 +107,7 @@ class Sites {
 
             delete updateData.id
 
-            const response = await req.mongoDB.updateOne(mongoCollections.SITES, { _id: ObjectId(id), org_id }, { $set: updateData })
+            const response = await req.mongoDB.updateOne(mongoCollections.SITES, { _id: new ObjectId(id), org_id }, { $set: updateData })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'updateSite',
@@ -130,7 +131,7 @@ class Sites {
             const { id } = req.body
             const { org_id } = req
 
-            const response = await req.mongoDB.deleteOne(mongoCollections.SITES, { _id: ObjectId(id), org_id })
+            const response = await req.mongoDB.deleteOne(mongoCollections.SITES, { _id: new ObjectId(id), org_id })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'deleteSite',

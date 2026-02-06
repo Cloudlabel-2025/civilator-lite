@@ -9,22 +9,21 @@ import { useAuth } from "../hooks/AuthContext";
 export const VerifyOTP: React.FC = () => {
   const [otp, setOtp] = useState("");
   const location = useLocation();
-  // const navigate = useNavigate();
   const authHandler = new AuthHandler();
   const { login, logout } = useAuth();
-  const [phoneNumber, setPhoneNumber] = useState(
-    location.state?.phoneNumber || ""
+  const [email, setEmail] = useState(
+    location.state?.email || ""
   );
 
   const setLoginDetails = () => {
-    let phoneNumber = localStorage.getItem("login-phone");
+    let savedEmail = localStorage.getItem("login-email");
 
-    if (!phoneNumber && !location.state?.phoneNumber) {
+    if (!savedEmail && !location.state?.email) {
       logout();
       return null;
     }
 
-    if (!location.state?.phoneNumber) setPhoneNumber(phoneNumber || "");
+    if (!location.state?.email) setEmail(savedEmail || "");
   };
 
   useEffect(() => {
@@ -35,12 +34,12 @@ export const VerifyOTP: React.FC = () => {
     e.preventDefault();
 
     let response = await authHandler.verify({
-      phone: phoneNumber,
+      email: email,
       otp,
     });
 
     if (response.success) {
-      localStorage.removeItem("login-phone");
+      localStorage.removeItem("login-email");
       const { token, user_details } = response.data;
 
       login(token, user_details);
@@ -53,7 +52,7 @@ export const VerifyOTP: React.FC = () => {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">Verify OTP</h1>
           <p className="mt-2 text-sm text-gray-600">
-            An OTP has been sent to <strong>{phoneNumber}</strong>.
+            An OTP has been sent to <strong>{email}</strong>.
           </p>
         </div>
         <form className="space-y-6" onSubmit={handleVerify}>

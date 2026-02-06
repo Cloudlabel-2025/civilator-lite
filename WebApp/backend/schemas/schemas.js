@@ -8,11 +8,11 @@ const Schemas = {
   // Auth_Schemas
 
   register: Joi.object({
-    phone: Joi.string().required(),
+    email: Joi.string().email().required(),
   }),
 
   verifyotp: Joi.object({
-    phone: Joi.string().required(),
+    email: Joi.string().email().required(),
     otp: Joi.string().required(),
   }),
 

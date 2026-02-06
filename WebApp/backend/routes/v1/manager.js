@@ -2,6 +2,7 @@ const express = require("express");
 const Routes = express.Router()
 
 const auth = require("./auth/auth");
+const admin = require("./admin/admin");
 const sites = require("./sites/sites");
 const vendors = require("./vendors/vendors");
 const employees = require("./employees/employees");
@@ -21,6 +22,7 @@ const public = require("./public/public");
 
 
 Routes.use('/auth', auth)
+Routes.use('/admin', admin)
 Routes.use('/sites', sites)
 Routes.use('/vendors', vendors)
 Routes.use('/employees', employees)

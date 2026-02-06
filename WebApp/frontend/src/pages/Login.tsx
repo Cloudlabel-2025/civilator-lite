@@ -1,35 +1,39 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Phone } from "lucide-react";
+import { Mail } from "lucide-react";
 
 import AuthHandler from "../handler/auth";
 
 import Images from "../assets/Images";
 
 export const Login: React.FC = () => {
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const authHandler = new AuthHandler();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
     let response = await authHandler.login({
-      phone: phoneNumber,
+      email: email,
     });
 
     if (response.success) {
-      localStorage.setItem("login-phone", phoneNumber);
+      localStorage.setItem("login-email", email);
 
-      navigate("/verify-otp", { state: { phoneNumber } });
+      navigate("/verify-otp", { state: { email } });
+    } else {
+      setError(response.message || "Login failed. Please try again.");
     }
   };
 
   useEffect(() => {
-    const phone = localStorage.getItem("login-phone");
-    if (phone) {
-      navigate("/verify-otp", { state: { phoneNumber: phone } });
+    const savedEmail = localStorage.getItem("login-email");
+    if (savedEmail) {
+      navigate("/verify-otp", { state: { email: savedEmail } });
     }
   }, []);
 
@@ -44,7 +48,7 @@ export const Login: React.FC = () => {
         <div className="text-center">
           <h4 className="text-2xl font-bold text-gray-900">Login & Sign Up</h4>
           <p className="mt-2 text-sm text-gray-600">
-            Enter your country code and mobile number
+            Enter your email address
           </p>
         </div>
         <img
@@ -52,24 +56,29 @@ export const Login: React.FC = () => {
           className="w-auto h-[100px] object-contain"
         />
         <form className="space-y-6" onSubmit={handleLogin}>
+          {error && (
+            <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+              {error}
+            </div>
+          )}
           <div>
-            <label htmlFor="phone-number" className="sr-only">
-              Phone Number
+            <label htmlFor="email" className="sr-only">
+              Email Address
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Phone className="w-5 h-5 text-gray-400" />
+                <Mail className="w-5 h-5 text-gray-400" />
               </div>
               <input
-                id="phone-number"
-                name="phone-number"
-                type="tel"
-                autoComplete="tel"
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
                 required
                 className="w-full py-3 pl-10 pr-4 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Phone Number"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="Email Address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
           </div>

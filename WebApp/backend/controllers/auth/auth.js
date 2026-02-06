@@ -21,87 +21,58 @@ class Auth {
         try {
             const isPayloadInvalid = await payloadValidator.Validate({ name: 'register', req, res, payload: req.body })
             if (isPayloadInvalid) return isPayloadInvalid
-            const { phone } = req.body
+            const { email } = req.body
 
 
-            let check_user_exist_res = await req.mongoDB.findOne(mongoCollections.USERS, { phone }, { "$projection": { _id: 0, id: 1, status: 1 } })
+            let check_user_exist_res = await req.mongoDB.findOne(mongoCollections.USERS, { email }, { "$projection": { _id: 0, id: 1, status: 1 } })
 
+            // Only allow login if user exists in database
+            if (!check_user_exist_res) {
+                return responseHandler.failedRequest({
+                    name: 'register',
+                    req, res,
+                    message: "User not found. Please contact admin for access."
+                })
+            }
 
             const verify_otp = Utils.getNumberOTP()
 
-            if (!check_user_exist_res) {
-
-                let org_data = {
-                    name: phone,
-                    phone: phone,
-                    email: phone,
-                    address: phone,
-                    gstin: phone,
-                    panNumber: phone,
-                    website: phone,
-                    logo: phone,
-                }
-
-                let org_response = await req.mongoDB.insertOne(mongoCollections.ORG, org_data)
-
-                if (!org_response.acknowledged) return responseHandler.failedRequest({
-                    name: 'register',
-                    req, res,
-                    message: "Failed to register, Please try again!"
-                })
-
-                const org_id = String(org_response.insertedId)
-
-                let register_data = {
-                    phone,
-                    role_type: 'admin',
-                    status: 1,
-                    verify_otp: verify_otp,
-                    org_id: org_id,
-                    created_by_id: phone,
-                    created_by_name: phone,
-                }
-
-
-                let user_response = await req.mongoDB.insertOne(mongoCollections.USERS, register_data)
-
-                if (!user_response.acknowledged) return responseHandler.failedRequest({
-                    name: 'register',
-                    req, res,
-                    message: "Failed to register, Please try again!"
-                })
-
+            let login_data = {
+                verify_otp: verify_otp,
+                status: 1,
+                updated_by_id: email,
+                updated_by_name: email,
             }
-            else {
+            let response = await req.mongoDB.updateOne(mongoCollections.USERS, { email }, { "$set": login_data })
 
-                let login_data = {
-                    verify_otp: verify_otp,
-                    status: 1,
-                    updated_by_id: phone,
-                    updated_by_name: phone,
-                }
-                let response = await req.mongoDB.updateOne(mongoCollections.USERS, { phone }, { "$set": login_data })
-
-                if (!response.acknowledged) return responseHandler.failedRequest({
-                    name: 'register',
-                    req, res,
-                    message: "Failed to login, Please try again!"
-                })
-            }
-
-            const is_sms_sent = await sendSMS(phone, `Your verify OTP is ${verify_otp}`)
-
-
-            if (!is_sms_sent) return responseHandler.failedRequest({
+            if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'register',
                 req, res,
-                message: "Failed to send OTP, Please try again!"
+                message: "Failed to login, Please try again!"
             })
+
+            // Send OTP via email instead of SMS
+            const Mailer = require('../../helpers/mailer')
+            const emailResult = await Mailer({
+                to: email,
+                subject: 'Your Login OTP',
+                message: `Your verification OTP is: ${verify_otp}`,
+                html: `<h2>Your verification OTP is: <strong>${verify_otp}</strong></h2>`
+            })
+
+            if (!emailResult || !emailResult.success) {
+                console.log('Email send failed:', emailResult);
+                return responseHandler.failedRequest({
+                    name: 'register',
+                    req, res,
+                    message: "Failed to send OTP, Please try again!"
+                })
+            }
 
             return responseHandler.successRequest({
                 name: 'register',
                 req, res,
-                message: "Please check inbox for magic link!",
+                message: "Please check your email for OTP!",
             })
         }
         catch (err) {
@@ -115,10 +86,10 @@ class Auth {
         try {
             const isPayloadInvalid = await payloadValidator.Validate({ name: 'verifyotp', req, res, payload: req.body })
             if (isPayloadInvalid) return isPayloadInvalid
-            const { phone, otp } = req.body
+            const { email, otp } = req.body
 
 
-            const get_user_details_res = await req.mongoDB.findOne(mongoCollections.USERS, { phone }, { projection: { _id: 1, name: 1, verify_otp: 1, phone: 1, org_id: 1, status: 1, role_type: 1, onboarding_status: 1 } })
+            const get_user_details_res = await req.mongoDB.findOne(mongoCollections.USERS, { email }, { projection: { _id: 1, name: 1, verify_otp: 1, email: 1, org_id: 1, status: 1, role_type: 1, onboarding_status: 1 } })
 
             if (!get_user_details_res) return responseHandler.failedRequest({
                 name: 'verifyotp',
@@ -136,7 +107,7 @@ class Auth {
                 _id: String(get_user_details_res._id),
                 org_id: get_user_details_res.org_id,
                 name: get_user_details_res.name,
-                phone: get_user_details_res.phone,
+                email: get_user_details_res.email,
                 role_type: get_user_details_res.role_type,
             })
 

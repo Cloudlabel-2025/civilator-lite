@@ -43,6 +43,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsAuthenticated(true);
     setOnboardCompleted(userdetails.onboarding_status == "1");
 
+    // Check if user is admin with specific email
+    if (userdetails.email === "kavin@cloudheard.org") {
+      return navigate("/admin/users");
+    }
+
     return navigate("/");
   };
 

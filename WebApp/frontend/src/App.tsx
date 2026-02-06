@@ -6,6 +6,7 @@ import ProtectedRoute from "./hooks/ProtectedRoute";
 
 import { Login } from "./pages/Login";
 import { VerifyOTP } from "./pages/VerifyOTP";
+import { AdminUserManagement } from "./pages/AdminUserManagement";
 import AppIndex from "./AppIndex";
 import SiteIndex from "./SiteIndex";
 
@@ -15,6 +16,7 @@ function App() {
       <Routes>
         <Route path="/login/*" element={<Login />} />
         <Route path="/verify-otp/*" element={<VerifyOTP />} />
+        <Route path="/admin/users" element={<AdminUserManagement />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/*" element={<AppIndex />} />
