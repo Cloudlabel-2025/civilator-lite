@@ -5,6 +5,7 @@ import { FormField } from "../components/Common/FormField";
 import { User, Building, Smartphone, Copy, Check } from "lucide-react";
 import { mockCustomerAppSettings } from "../data/mockData";
 import SettingsHandler from "../handler/settings";
+import { PermissionGuard } from "../components/Common/PermissionGuard";
 
 export const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
@@ -237,11 +238,10 @@ export const Settings: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                    activeTab === tab.id
+                  className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === tab.id
                       ? "border-blue-500 text-blue-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
+                    }`}
                 >
                   <Icon className="w-4 h-4" />
                   <span>{tab.label}</span>
@@ -326,9 +326,11 @@ export const Settings: React.FC = () => {
               />
 
               <div className="flex justify-end pt-4">
-                <Button type="submit" disabled={loading}>
-                  {loading ? "Updating..." : "Update Profile"}
-                </Button>
+                <PermissionGuard module="settings" action="edit">
+                  <Button type="submit" disabled={loading}>
+                    {loading ? "Updating..." : "Update Profile"}
+                  </Button>
+                </PermissionGuard>
               </div>
             </form>
           </div>
@@ -452,9 +454,11 @@ export const Settings: React.FC = () => {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button type="submit" disabled={loading}>
-                  {loading ? "Updating..." : "Update Company Info"}
-                </Button>
+                <PermissionGuard module="settings" action="edit">
+                  <Button type="submit" disabled={loading}>
+                    {loading ? "Updating..." : "Update Company Info"}
+                  </Button>
+                </PermissionGuard>
               </div>
             </form>
           </div>
@@ -532,7 +536,9 @@ export const Settings: React.FC = () => {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button type="submit">Update Settings</Button>
+                <PermissionGuard module="settings" action="edit">
+                  <Button type="submit">Update Settings</Button>
+                </PermissionGuard>
               </div>
             </form>
           </div>

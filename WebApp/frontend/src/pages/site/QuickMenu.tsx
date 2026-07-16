@@ -32,12 +32,6 @@ const QuickMenu: React.FC = () => {
       path: "/tasks?action=add",
     },
     {
-      id: "attendances",
-      title: "Attendance",
-      icon: Contact2Icon,
-      path: "/attendances?action=add",
-    },
-    {
       id: "expenses",
       title: "Add Expenses",
       icon: ReceiptText,

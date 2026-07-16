@@ -57,7 +57,7 @@ class Vendors {
                 org_id
             }
 
-            if (id) filters._id = ObjectId(id)
+            if (id) filters._id = new ObjectId(id)
             if (status) filters.status = status
             if (search) filters.$or = [
                 { name: { $regex: search, $options: 'i' } },
@@ -99,7 +99,7 @@ class Vendors {
 
             delete updateData.id
 
-            const response = await req.mongoDB.updateOne(mongoCollections.VENDORS, { _id: ObjectId(id), org_id }, { $set: updateData })
+            const response = await req.mongoDB.updateOne(mongoCollections.VENDORS, { _id: new ObjectId(id), org_id }, { $set: updateData })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'updateVendor',
@@ -123,7 +123,7 @@ class Vendors {
             const { id } = req.body
             const { org_id } = req
 
-            const response = await req.mongoDB.deleteOne(mongoCollections.VENDORS, { _id: ObjectId(id), org_id })
+            const response = await req.mongoDB.deleteOne(mongoCollections.VENDORS, { _id: new ObjectId(id), org_id })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'deleteVendor',

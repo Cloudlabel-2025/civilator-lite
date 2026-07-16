@@ -7,6 +7,7 @@ import { Table } from "../components/Common/Table";
 import { Plus, Edit, Trash2, Shield } from "lucide-react";
 import { Role } from "../types";
 import RolesHandler from "../handler/roles";
+import { PermissionGuard } from "../components/Common/PermissionGuard";
 
 export const RoleManagement: React.FC = () => {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -20,19 +21,15 @@ export const RoleManagement: React.FC = () => {
       sites: { view: false, create: false, edit: false, delete: false },
       vendors: { view: false, create: false, edit: false, delete: false },
       employees: { view: false, create: false, edit: false, delete: false },
-      masterDatabase: {
-        view: false,
-        create: false,
-        edit: false,
-        delete: false,
-      },
-      roleManagement: {
-        view: false,
-        create: false,
-        edit: false,
-        delete: false,
-      },
+      masterDatabase: { view: false, create: false, edit: false, delete: false },
+      roleManagement: { view: false, create: false, edit: false, delete: false },
       settings: { view: false, create: false, edit: false, delete: false },
+      tasks: { view: false, create: false, edit: false, delete: false },
+      attendances: { view: false, create: false, edit: false, delete: false },
+      expenses: { view: false, create: false, edit: false, delete: false },
+      payments: { view: false, create: false, edit: false, delete: false },
+      materials: { view: false, create: false, edit: false, delete: false },
+      financeDashboard: { view: false, create: false, edit: false, delete: false },
     },
   });
 
@@ -52,19 +49,15 @@ export const RoleManagement: React.FC = () => {
           sites: { view: false, create: false, edit: false, delete: false },
           vendors: { view: false, create: false, edit: false, delete: false },
           employees: { view: false, create: false, edit: false, delete: false },
-          masterDatabase: {
-            view: false,
-            create: false,
-            edit: false,
-            delete: false,
-          },
-          roleManagement: {
-            view: false,
-            create: false,
-            edit: false,
-            delete: false,
-          },
+          masterDatabase: { view: false, create: false, edit: false, delete: false },
+          roleManagement: { view: false, create: false, edit: false, delete: false },
           settings: { view: false, create: false, edit: false, delete: false },
+          tasks: { view: false, create: false, edit: false, delete: false },
+          attendances: { view: false, create: false, edit: false, delete: false },
+          expenses: { view: false, create: false, edit: false, delete: false },
+          payments: { view: false, create: false, edit: false, delete: false },
+          materials: { view: false, create: false, edit: false, delete: false },
+          financeDashboard: { view: false, create: false, edit: false, delete: false },
         },
       });
     }
@@ -118,18 +111,29 @@ export const RoleManagement: React.FC = () => {
 
   const handlePermissionChange = (
     module: string,
-    action: string,
+    action: string | "all",
     value: boolean
   ) => {
+    const newPermissions = { ...formData.permissions };
+    const moduleKey = module as keyof typeof formData.permissions;
+
+    if (action === "all") {
+      newPermissions[moduleKey] = {
+        view: value,
+        create: value,
+        edit: value,
+        delete: value,
+      };
+    } else {
+      newPermissions[moduleKey] = {
+        ...newPermissions[moduleKey],
+        [action]: value,
+      };
+    }
+
     setFormData({
       ...formData,
-      permissions: {
-        ...formData.permissions,
-        [module]: {
-          ...formData.permissions[module as keyof typeof formData.permissions],
-          [action]: value,
-        },
-      },
+      permissions: newPermissions,
     });
   };
 
@@ -217,13 +221,19 @@ export const RoleManagement: React.FC = () => {
   ];
 
   const moduleLabels = {
-    dashboard: "Dashboard",
-    sites: "Sites",
+    dashboard: "Main Dashboard",
+    sites: "Sites Management",
     vendors: "Vendors",
     employees: "Employees",
     masterDatabase: "Master Database",
     roleManagement: "Role Management",
-    settings: "Settings",
+    settings: "System Settings",
+    tasks: "Site Tasks",
+    attendances: "Site Attendance",
+    expenses: "Site Expenses",
+    payments: "Site Payments",
+    materials: "Site Materials",
+    financeDashboard: "Finance Dashboard",
   };
 
   const actionLabels = {
@@ -308,35 +318,62 @@ export const RoleManagement: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {Object.entries(moduleLabels).map(([module, label]) => (
-                    <tr key={module} className="border-b hover:bg-gray-50">
-                      <td className="py-3 px-3 font-medium text-gray-900">
-                        {label}
-                      </td>
-                      {Object.keys(actionLabels).map((action) => (
-                        <td key={action} className="py-3 px-3 text-center">
-                          <input
-                            type="checkbox"
-                            checked={
-                              formData.permissions[
-                                module as keyof typeof formData.permissions
-                              ][
-                                action as keyof typeof formData.permissions.dashboard
-                              ]
-                            }
-                            onChange={(e) =>
-                              handlePermissionChange(
-                                module,
-                                action,
-                                e.target.checked
-                              )
-                            }
-                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                          />
+                  {Object.entries(moduleLabels).map(([module, label]) => {
+                    const modulePerms =
+                      formData.permissions[
+                      module as keyof typeof formData.permissions
+                      ];
+                    const isAllSelected = Object.values(modulePerms).every(
+                      Boolean
+                    );
+
+                    return (
+                      <tr key={module} className="border-b hover:bg-gray-50">
+                        <td className="py-3 px-3">
+                          <div className="flex flex-col">
+                            <span className="font-medium text-gray-900">
+                              {label}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handlePermissionChange(
+                                  module,
+                                  "all",
+                                  !isAllSelected
+                                )
+                              }
+                              className="text-[10px] text-left text-blue-600 hover:text-blue-700 font-medium"
+                            >
+                              {isAllSelected ? "Deselect All" : "Select All"}
+                            </button>
+                          </div>
                         </td>
-                      ))}
-                    </tr>
-                  ))}
+                        {Object.keys(actionLabels).map((action) => (
+                          <td key={action} className="py-3 px-3 text-center">
+                            <input
+                              type="checkbox"
+                              checked={
+                                formData.permissions[
+                                module as keyof typeof formData.permissions
+                                ][
+                                action as keyof typeof formData.permissions.dashboard
+                                ]
+                              }
+                              onChange={(e) =>
+                                handlePermissionChange(
+                                  module,
+                                  action,
+                                  e.target.checked
+                                )
+                              }
+                              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -363,13 +400,15 @@ export const RoleManagement: React.FC = () => {
           <h2 className="text-xl font-semibold text-gray-900">
             Role Management
           </h2>
-          <Button
-            onClick={() => handleOpenModal()}
-            icon={Plus}
-            iconPosition="left"
-          >
-            Create New Role
-          </Button>
+          <PermissionGuard module="roleManagement" action="create">
+            <Button
+              onClick={() => handleOpenModal()}
+              icon={Plus}
+              iconPosition="left"
+            >
+              Create New Role
+            </Button>
+          </PermissionGuard>
         </div>
 
         {/* Roles Table */}
@@ -380,19 +419,23 @@ export const RoleManagement: React.FC = () => {
           mobileCardSubtitle={(role) => getPermissionSummary(role.permissions)}
           actions={(role) => (
             <>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleOpenModal(role)}
-                icon={Edit}
-              />
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleDelete(role.id)}
-                icon={Trash2}
-                className="text-red-600 hover:text-red-700"
-              />
+              <PermissionGuard module="roleManagement" action="edit">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleOpenModal(role)}
+                  icon={Edit}
+                />
+              </PermissionGuard>
+              <PermissionGuard module="roleManagement" action="delete">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleDelete(role.id)}
+                  icon={Trash2}
+                  className="text-red-600 hover:text-red-700"
+                />
+              </PermissionGuard>
             </>
           )}
         />

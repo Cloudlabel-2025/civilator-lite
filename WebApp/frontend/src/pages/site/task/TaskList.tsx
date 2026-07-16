@@ -7,10 +7,12 @@ import { FormField } from "../../../components/Common/FormField";
 import { Table } from "../../../components/Common/Table";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import TasksHandler from "../../../handler/tasks";
+import SitesHandler from "../../../handler/sites";
 import Utils from "../../../helpers/utils";
 import { UnitOptions } from "../../../data/constants";
 import { ViewTask } from "./ViewTask";
 import { UpdateTaskProgress } from "./UpdateTaskProgress";
+import { PermissionGuard } from "../../../components/Common/PermissionGuard";
 
 interface Task {
   id: string;
@@ -32,12 +34,36 @@ export const TaskList: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [selectedAssignees, setSelectedAssignees] = useState<any[]>([]);
   const tasksHandler = new TasksHandler();
+  const sitesHandler = new SitesHandler();
   const navigator = useNavigate();
+  const categoryOptions = [
+    { value: "excavation", label: "Excavation" },
+    { value: "foundation", label: "Foundation & Footing" },
+    { value: "rcc", label: "RCC Structure" },
+    { value: "masonry", label: "Masonry / Brickwork" },
+    { value: "plastering", label: "Plastering" },
+    { value: "flooring", label: "Flooring & Tiling" },
+    { value: "painting", label: "Painting" },
+    { value: "plumbing", label: "Plumbing" },
+    { value: "electrical", label: "Electrical" },
+    { value: "woodwork", label: "Woodwork / Carpentry" },
+    { value: "landscaping", label: "Landscaping" },
+    { value: "other", label: "Other" },
+  ];
+
+  const priorityOptions = [
+    { value: "high", label: "High" },
+    { value: "medium", label: "Medium" },
+    { value: "low", label: "Low" },
+  ];
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    category: "",
+    category: "other",
     priority: "medium",
     start_date: "",
     end_date: "",
@@ -45,13 +71,30 @@ export const TaskList: React.FC = () => {
     total_work_progress: "",
   });
 
+  const loadSiteTeam = async () => {
+    try {
+      const response = await sitesHandler.get({ id: siteId });
+      if (response.success && response.data.items?.length > 0) {
+        setEmployees(response.data.items[0].team || []);
+      }
+    } catch (error) {
+      console.error("Error loading site team:", error);
+    }
+  };
+
+  const assigneeOptions = employees.map((emp) => ({
+    value: emp.id,
+    label: emp.name,
+  }));
+
   const handleOpenModal = (task?: Task) => {
     if (task) {
       setEditingTask(task);
+      setSelectedAssignees((task as any).assignees || []);
       setFormData({
         name: task.name,
         description: task.description || "",
-        category: task.category || "",
+        category: task.category || "other",
         priority: task.priority || "medium",
         start_date: task.start_date || "",
         end_date: task.end_date || "",
@@ -61,10 +104,11 @@ export const TaskList: React.FC = () => {
       });
     } else {
       setEditingTask(null);
+      setSelectedAssignees([]);
       setFormData({
         name: "",
         description: "",
-        category: "",
+        category: "other",
         priority: "medium",
         start_date: "",
         end_date: "",
@@ -83,12 +127,15 @@ export const TaskList: React.FC = () => {
       site_id: siteId,
       name: formData.name,
       description: formData.description,
+      category: formData.category,
+      priority: formData.priority,
       start_date: formData.start_date,
       end_date: formData.end_date,
       unit: formData.unit || "%",
       total_work_progress: formData.total_work_progress
         ? Number(formData.total_work_progress)
         : 100,
+      assignees: selectedAssignees,
     };
 
     try {
@@ -131,13 +178,13 @@ export const TaskList: React.FC = () => {
         const tasks = items.map((task: Task, idx: number) => {
           let duration_days = task.end_date
             ? Utils.getDuration(
-                new Date().getTime(),
-                new Date(task.end_date || 0).getTime() || 0,
-                "days"
-              )
+              new Date().getTime(),
+              new Date(task.end_date || 0).getTime() || 0,
+              "days"
+            )
             : 0;
           let status_value = getStatus(task);
-          let status_label = getStatusEenem(status_value, duration_days);
+          let status_label = getStatusEnum(status_value, duration_days);
 
           return {
             ...task,
@@ -145,18 +192,18 @@ export const TaskList: React.FC = () => {
             status_label,
             delay: task.end_date
               ? Utils.getDuration(
-                  new Date().getTime() || 0,
-                  new Date(task.end_date).getTime() || 0,
-                  "days"
-                ) || 0
+                new Date().getTime() || 0,
+                new Date(task.end_date).getTime() || 0,
+                "days"
+              ) || 0
               : 0,
             duration:
               task.start_date && task.end_date
                 ? Utils.getDuration(
-                    new Date(task.start_date).getTime() || 0,
-                    new Date(task.end_date).getTime() || 0,
-                    "days"
-                  ) || 0
+                  new Date(task.start_date).getTime() || 0,
+                  new Date(task.end_date).getTime() || 0,
+                  "days"
+                ) || 0
                 : 0,
             sno: idx + 1,
           };
@@ -178,6 +225,7 @@ export const TaskList: React.FC = () => {
   };
   useEffect(() => {
     loadTasks();
+    loadSiteTeam();
     renderParamsAction();
   }, []);
 
@@ -220,10 +268,11 @@ export const TaskList: React.FC = () => {
       return "5"; // Delayed by days
     else if (item.status == "3") return "6"; // on Hold
     else if (item.status == "4") return "7"; // Stopped
+    else if (item.work_done_progress >= item.total_work_progress) return "4"
 
     return "-";
   };
-  const getStatusEenem = (type: string | number, delay: number) => {
+  const getStatusEnum = (type: string | number, delay: number) => {
     if (type == "0") return "No dates added";
     else if (type == "1") return "Upcoming task";
     else if (type == "2") return "Not started";
@@ -343,6 +392,27 @@ export const TaskList: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
+              label="Category"
+              type="select"
+              options={categoryOptions}
+              value={formData.category}
+              onChange={(value) =>
+                setFormData({ ...formData, category: value as string })
+              }
+            />
+            <FormField
+              label="Priority"
+              type="select"
+              options={priorityOptions}
+              value={formData.priority}
+              onChange={(value) =>
+                setFormData({ ...formData, priority: value as string })
+              }
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
               label="Start Date"
               type="date"
               value={formData.start_date}
@@ -384,6 +454,47 @@ export const TaskList: React.FC = () => {
             />
           </div>
 
+          <div className="flex flex-col gap-4 border-t pt-4">
+            <h4 className="text-sm font-semibold text-gray-900">Assigned To</h4>
+            <FormField
+              label="Select Team Member"
+              type="select"
+              options={assigneeOptions}
+              value=""
+              onChange={(value) => {
+                const emp = employees.find((e) => e.id === value);
+                if (emp && !selectedAssignees.find((a) => a.id === emp.id)) {
+                  setSelectedAssignees([...selectedAssignees, emp]);
+                }
+              }}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {selectedAssignees.map((assignee: any) => (
+                <div
+                  key={assignee.id}
+                  className="flex items-center justify-between border border-gray-200 rounded-md p-2 bg-gray-50"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <div className="text-sm font-medium text-gray-900">
+                      {assignee.name}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {assignee.role_name}
+                    </div>
+                  </div>
+                  <Trash2
+                    className="w-4 h-4 cursor-pointer text-red-500 hover:text-red-700"
+                    onClick={() =>
+                      setSelectedAssignees(
+                        selectedAssignees.filter((a) => a.id !== assignee.id)
+                      )
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="flex justify-end space-x-3 pt-6 border-t">
             <Button
               type="button"
@@ -402,13 +513,15 @@ export const TaskList: React.FC = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-900">Tasks</h2>
-          <Button
-            onClick={() => handleOpenModal()}
-            icon={Plus}
-            iconPosition="left"
-          >
-            Add New
-          </Button>
+          <PermissionGuard module="tasks" action="create">
+            <Button
+              onClick={() => handleOpenModal()}
+              icon={Plus}
+              iconPosition="left"
+            >
+              Add New
+            </Button>
+          </PermissionGuard>
         </div>
 
         <Table
@@ -423,30 +536,33 @@ export const TaskList: React.FC = () => {
             </Link>
           )}
           mobileCardSubtitle={(task) =>
-            `${task.duration ? String(task.duration) + " days" : ""} • ${
-              task.assignees
-                ?.map((assignee: any) => assignee.name)
-                .join(", ") || "Unassigned"
+            `${task.duration ? String(task.duration) + " days" : ""} • ${task.assignees
+              ?.map((assignee: any) => assignee.name)
+              .join(", ") || "Unassigned"
             }`
           }
           actions={(task) => (
             <>
-              <Button
-                size="sm"
-                variant="primary_light"
-                onClick={() =>
-                  navigator(`/site/${siteId}/tasks/${task.id}/update-progress`)
-                }
-              >
-                Update
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleDelete(task.id)}
-                icon={Trash2}
-                className="text-red-600 hover:text-red-700"
-              />
+              <PermissionGuard module="tasks" action="edit">
+                <Button
+                  size="sm"
+                  variant="primary_light"
+                  onClick={() =>
+                    navigator(`/site/${siteId}/tasks/${task.id}/update-progress`)
+                  }
+                >
+                  Update
+                </Button>
+              </PermissionGuard>
+              <PermissionGuard module="tasks" action="delete">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleDelete(task.id)}
+                  icon={Trash2}
+                  className="text-red-600 hover:text-red-700"
+                />
+              </PermissionGuard>
             </>
           )}
         />

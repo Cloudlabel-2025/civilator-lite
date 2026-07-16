@@ -41,6 +41,9 @@ export const VerifyOTP: React.FC = () => {
     if (response.success) {
       localStorage.removeItem("login-email");
       const { token, user_details } = response.data;
+      console.log("Full backend response data:", response.data);
+      console.log("Extracted user_details:", user_details);
+      console.log("User email from details:", user_details?.email);
 
       login(token, user_details);
     }

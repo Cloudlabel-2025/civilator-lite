@@ -93,7 +93,7 @@ class Inventory {
                 }
 
                 if (inventoryMaterial) {
-                    await req.mongoDB.updateOne(mongoCollections.INVENTORY, { _id: ObjectId(inventoryMaterial.id) }, {
+                    await req.mongoDB.updateOne(mongoCollections.INVENTORY, { _id: new ObjectId(inventoryMaterial.id) }, {
                         $set: {
                             purchased_quantity: parseFloat(inventoryMaterial.purchased_quantity) + parseFloat(new_material.quantity),
                             balance_quantity: parseFloat(inventoryMaterial.balance_quantity) + parseFloat(new_material.quantity),
@@ -140,7 +140,7 @@ class Inventory {
                 type: 'procurement',
             }
 
-            if (id) filters._id = ObjectId(id)
+            if (id) filters._id = new ObjectId(id)
             if (site_id) filters.site_id = site_id
             if (vendor_id) filters.vendor_id = vendor_id
             if (payment_mode) filters.payment_mode = payment_mode
@@ -176,7 +176,7 @@ class Inventory {
             let attachments = []
 
             // Get existing material record to check attachments
-            const existingProcurement = await req.mongoDB.findOne(mongoCollections.PROCUREMENT, { _id: ObjectId(id), org_id })
+            const existingProcurement = await req.mongoDB.findOne(mongoCollections.PROCUREMENT, { _id: new ObjectId(id), org_id })
             const existingAttachments = existingProcurement?.attachments || []
 
             // Remove files that are no longer present
@@ -276,7 +276,7 @@ class Inventory {
                         balance_quantity -= parseFloat(existing_material.quantity)
                     }
 
-                    await req.mongoDB.updateOne(mongoCollections.INVENTORY, { _id: ObjectId(inventoryMaterial.id) }, {
+                    await req.mongoDB.updateOne(mongoCollections.INVENTORY, { _id: new ObjectId(inventoryMaterial.id) }, {
                         $set: {
                             purchased_quantity: purchased_quantity + parseFloat(new_material.quantity),
                             balance_quantity: balance_quantity + parseFloat(new_material.quantity),
@@ -295,7 +295,7 @@ class Inventory {
 
             delete updateData.id
 
-            const response = await req.mongoDB.updateOne(mongoCollections.PROCUREMENT, { _id: ObjectId(id), org_id }, { $set: updateData })
+            const response = await req.mongoDB.updateOne(mongoCollections.PROCUREMENT, { _id: new ObjectId(id), org_id }, { $set: updateData })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'updateMaterial',
@@ -319,7 +319,7 @@ class Inventory {
             const { id } = req.body
             const { org_id } = req
 
-            const response = await req.mongoDB.deleteOne(mongoCollections.PROCUREMENT, { _id: ObjectId(id), org_id })
+            const response = await req.mongoDB.deleteOne(mongoCollections.PROCUREMENT, { _id: new ObjectId(id), org_id })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'deleteMaterial',
@@ -348,7 +348,7 @@ class Inventory {
                 site_id
             }
 
-            if (id) filters._id = ObjectId(id)
+            if (id) filters._id = new ObjectId(id)
             if (site_id) filters.site_id = site_id
             if (search) filters.$or = [
                 { material_name: { $regex: search, $options: 'i' } },
@@ -480,7 +480,7 @@ class Inventory {
             } = req.body
 
 
-            let material_ids = materials.map(material => ObjectId(material.material_id))
+            let material_ids = materials.map(material => new ObjectId(material.material_id))
 
             const inventoryMaterials = await req.mongoDB.find(mongoCollections.INVENTORY, { site_id: site_id, material_id: { $in: material_ids }, org_id })
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Plus, Edit, Trash2, LogOut } from "lucide-react";
 import { Button } from "../components/Common/Button";
 import { Modal } from "../components/Common/Modal";
@@ -13,6 +14,7 @@ export const AdminUserManagement: React.FC = () => {
   const [editingUser, setEditingUser] = useState<any | null>(null);
   const adminHandler = new AdminHandler();
   const { logout } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -40,7 +42,7 @@ export const AdminUserManagement: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       const data = editingUser ? { ...formData, id: editingUser.id } : formData;
       const response = editingUser ? await adminHandler.put(data) : await adminHandler.post(data);
@@ -79,6 +81,12 @@ export const AdminUserManagement: React.FC = () => {
   };
 
   useEffect(() => {
+    const userDetailsStr = localStorage.getItem("userdetails");
+    const userDetails = userDetailsStr ? JSON.parse(userDetailsStr) : null;
+    if (userDetails?.email !== "kavin@cloudheard.org") {
+      navigate("/");
+      return;
+    }
     loadUsers();
   }, []);
 

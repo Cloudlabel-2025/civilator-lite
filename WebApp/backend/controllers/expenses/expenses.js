@@ -86,7 +86,7 @@ class Expenses {
                 org_id
             }
 
-            if (id) filters._id = ObjectId(id)
+            if (id) filters._id = new ObjectId(id)
             if (site_id) filters.site_id = site_id
             if (category) filters.category = category
             if (payment_mode) filters.payment_mode = payment_mode
@@ -122,7 +122,7 @@ class Expenses {
 
 
             // Get existing expense record to check attachments
-            const existingExpense = await req.mongoDB.findOne(mongoCollections.EXPENSES, { _id: ObjectId(id), org_id })
+            const existingExpense = await req.mongoDB.findOne(mongoCollections.EXPENSES, { _id: new ObjectId(id), org_id })
             const existingAttachments = existingExpense?.attachments || []
 
             // Remove files that are no longer present

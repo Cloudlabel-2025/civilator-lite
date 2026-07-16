@@ -21,6 +21,7 @@ import Utils from "../../helpers/utils";
 import VendorsHandler from "../../handler/vendors";
 import AttendancesHandler from "../../handler/attendances";
 import LaboursMasterHandler from "../../handler/master_labours";
+import { PermissionGuard } from "../../components/Common/PermissionGuard";
 
 export const Attendances: React.FC = () => {
   const [activeAttendanceTab, setActiveAttendanceTab] = useState<
@@ -547,63 +548,68 @@ export const Attendances: React.FC = () => {
                   ""
                 )}
 
-                <Button
-                  size="sm"
-                  variant="primary_light"
-                  onClick={() => {
-                    setVendorMarkAttenData(attendance);
-                    setVendorMarkAttenModalOpen(true);
-                  }}
-                  icon={
-                    Object.keys(attendance.attendance_records).length > 0
-                      ? RotateCwIcon
-                      : Plus
-                  }
-                >
-                  {Object.keys(attendance.attendance_records).length > 0
-                    ? "Update"
-                    : "Mark"}{" "}
-                  Attendance
-                </Button>
+                <PermissionGuard module="attendances" action="edit">
+                  <Button
+                    size="sm"
+                    variant="primary_light"
+                    onClick={() => {
+                      setVendorMarkAttenData(attendance);
+                      setVendorMarkAttenModalOpen(true);
+                    }}
+                    icon={
+                      Object.keys(attendance.attendance_records).length > 0
+                        ? RotateCwIcon
+                        : Plus
+                    }
+                  >
+                    {Object.keys(attendance.attendance_records).length > 0
+                      ? "Update"
+                      : "Mark"}{" "}
+                    Attendance
+                  </Button>
+                </PermissionGuard>
               </div>
             ) : (
               <div className="flex items-center gap-2  ">
-                <span
-                  className={`px-2 py-1 rounded-md select-none border cursor-pointer bg-transperent ${
-                    attendance?.attendance_records?.status == "present"
+                <PermissionGuard module="attendances" action="edit">
+                  <span
+                    className={`px-2 py-1 rounded-md select-none border cursor-pointer bg-transperent ${attendance?.attendance_records?.status == "present"
                       ? "border-green-700 bg-green-50 text-green-700"
                       : "border-gray-500 text-gray-700"
-                  } `}
-                  onClick={() =>
-                    markAttendance(attendance.id, { status: "present" })
-                  }
-                >
-                  Present
-                </span>
-                <span
-                  className={`px-2 py-1 rounded-md select-none border cursor-pointer bg-transperent ${
-                    attendance?.attendance_records?.status == "halfday"
+                      } `}
+                    onClick={() =>
+                      markAttendance(attendance.id, { status: "present" })
+                    }
+                  >
+                    Present
+                  </span>
+                </PermissionGuard>
+                <PermissionGuard module="attendances" action="edit">
+                  <span
+                    className={`px-2 py-1 rounded-md select-none border cursor-pointer bg-transperent ${attendance?.attendance_records?.status == "halfday"
                       ? "border-yellow-700 bg-yellow-50 text-yellow-700"
                       : "border-gray-500 text-gray-700"
-                  } `}
-                  onClick={() =>
-                    markAttendance(attendance.id, { status: "halfday" })
-                  }
-                >
-                  Halfday
-                </span>
-                <span
-                  className={`px-2 py-1 rounded-md select-none border cursor-pointer bg-transperent ${
-                    attendance?.attendance_records?.status == "absent"
+                      } `}
+                    onClick={() =>
+                      markAttendance(attendance.id, { status: "halfday" })
+                    }
+                  >
+                    Halfday
+                  </span>
+                </PermissionGuard>
+                <PermissionGuard module="attendances" action="edit">
+                  <span
+                    className={`px-2 py-1 rounded-md select-none border cursor-pointer bg-transperent ${attendance?.attendance_records?.status == "absent"
                       ? "border-red-700 bg-red-50 text-red-700"
                       : "border-gray-500 text-gray-700"
-                  } `}
-                  onClick={() =>
-                    markAttendance(attendance.id, { status: "absent" })
-                  }
-                >
-                  Absent
-                </span>
+                      } `}
+                    onClick={() =>
+                      markAttendance(attendance.id, { status: "absent" })
+                    }
+                  >
+                    Absent
+                  </span>
+                </PermissionGuard>
               </div>
             )}
           </div>
@@ -845,7 +851,7 @@ export const Attendances: React.FC = () => {
                             ...VendorMarkAttenData.attendance_records,
                             [item.id]: {
                               ...VendorMarkAttenData.attendance_records[
-                                item.id
+                              item.id
                               ],
                               present: value,
                             },
@@ -867,7 +873,7 @@ export const Attendances: React.FC = () => {
                             ...VendorMarkAttenData.attendance_records,
                             [item.id]: {
                               ...VendorMarkAttenData.attendance_records[
-                                item.id
+                              item.id
                               ],
                               halfday: value,
                             },
@@ -889,7 +895,7 @@ export const Attendances: React.FC = () => {
                             ...VendorMarkAttenData.attendance_records,
                             [item.id]: {
                               ...VendorMarkAttenData.attendance_records[
-                                item.id
+                              item.id
                               ],
                               overtime_hours: value,
                             },
@@ -1036,11 +1042,10 @@ export const Attendances: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => handleAttendanceTabChange(tab.id)}
-                    className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                      activeAttendanceTab === tab.id
-                        ? "border-blue-500 text-blue-600"
-                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    }`}
+                    className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeAttendanceTab === tab.id
+                      ? "border-blue-500 text-blue-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                      }`}
                   >
                     <span>{tab.label}</span>
                   </button>
@@ -1051,28 +1056,32 @@ export const Attendances: React.FC = () => {
             <div className="flex items-center justify-between gap-2 w-full  md:w-max md:justify-end">
               {(activeAttendanceTab == "all" ||
                 activeAttendanceTab == "my_labour") && (
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={() => handleAdd("my_labour")}
-                  icon={Plus}
-                  className="w-full md:w-[max]"
-                >
-                  Add Labour
-                </Button>
-              )}
+                  <PermissionGuard module="attendances" action="create">
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      onClick={() => handleAdd("my_labour")}
+                      icon={Plus}
+                      className="w-full md:w-[max]"
+                    >
+                      Add Labour
+                    </Button>
+                  </PermissionGuard>
+                )}
               {(activeAttendanceTab == "all" ||
                 activeAttendanceTab == "vendor_labour") && (
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={() => handleAdd("vendor_labour")}
-                  icon={Plus}
-                  className="w-full md:w-auto"
-                >
-                  Add Vendor
-                </Button>
-              )}
+                  <PermissionGuard module="attendances" action="create">
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      onClick={() => handleAdd("vendor_labour")}
+                      icon={Plus}
+                      className="w-full md:w-auto"
+                    >
+                      Add Vendor
+                    </Button>
+                  </PermissionGuard>
+                )}
             </div>
           </div>
           <div className="flex items-center justify-between gap-4">
@@ -1149,27 +1158,31 @@ export const Attendances: React.FC = () => {
               mobileCardSubtitle={(attendance: any) =>
                 attendance.type == "vendor_labour"
                   ? attendance.labours
-                      ?.map((l: any) => l.labour_name)
-                      .join(" | ")
+                    ?.map((l: any) => l.labour_name)
+                    .join(" | ")
                   : attendance.type_name
               }
               actions={(attendance) => (
                 <>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => {
-                      handleEdit(attendance);
-                    }}
-                    icon={Edit}
-                  />
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleDelete(attendance)}
-                    icon={Trash2}
-                    className="text-red-600 hover:text-red-700"
-                  />
+                  <PermissionGuard module="attendances" action="edit">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        handleEdit(attendance);
+                      }}
+                      icon={Edit}
+                    />
+                  </PermissionGuard>
+                  <PermissionGuard module="attendances" action="delete">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDelete(attendance)}
+                      icon={Trash2}
+                      className="text-red-600 hover:text-red-700"
+                    />
+                  </PermissionGuard>
                 </>
               )}
             />

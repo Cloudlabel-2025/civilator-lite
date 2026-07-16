@@ -59,7 +59,7 @@ class LaboursController {
                 org_id: org_id
             }
 
-            if (id) filters._id = ObjectId(id)
+            if (id) filters._id = new ObjectId(id)
             if (status) filters.status = status
             if (search) filters.$or = [
                 { name: { $regex: search, $options: 'i' } },
@@ -99,7 +99,7 @@ class LaboursController {
 
             delete updateData.id
 
-            const response = await req.mongoDB.updateOne(mongoCollections.MASTER_LABORS, { _id: ObjectId(id), org_id }, { $set: updateData })
+            const response = await req.mongoDB.updateOne(mongoCollections.MASTER_LABORS, { _id: new ObjectId(id), org_id }, { $set: updateData })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'updateMasterLabor',
@@ -122,7 +122,7 @@ class LaboursController {
         try {
             const { id } = req.body
             const { org_id } = req
-            const response = await req.mongoDB.deleteOne(mongoCollections.MASTER_LABORS, { _id: ObjectId(id), org_id })
+            const response = await req.mongoDB.deleteOne(mongoCollections.MASTER_LABORS, { _id: new ObjectId(id), org_id })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'deleteMasterlabour',

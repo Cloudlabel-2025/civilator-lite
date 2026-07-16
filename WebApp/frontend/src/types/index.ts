@@ -63,38 +63,20 @@ export interface Role {
   id: string;
   name: string;
   permissions: {
-    dashboard: {
-      view: boolean;
-      create: boolean;
-      edit: boolean;
-      delete: boolean;
-    };
+    dashboard: { view: boolean; create: boolean; edit: boolean; delete: boolean };
     sites: { view: boolean; create: boolean; edit: boolean; delete: boolean };
     vendors: { view: boolean; create: boolean; edit: boolean; delete: boolean };
-    employees: {
-      view: boolean;
-      create: boolean;
-      edit: boolean;
-      delete: boolean;
-    };
-    masterDatabase: {
-      view: boolean;
-      create: boolean;
-      edit: boolean;
-      delete: boolean;
-    };
-    roleManagement: {
-      view: boolean;
-      create: boolean;
-      edit: boolean;
-      delete: boolean;
-    };
-    settings: {
-      view: boolean;
-      create: boolean;
-      edit: boolean;
-      delete: boolean;
-    };
+    employees: { view: boolean; create: boolean; edit: boolean; delete: boolean };
+    masterDatabase: { view: boolean; create: boolean; edit: boolean; delete: boolean };
+    roleManagement: { view: boolean; create: boolean; edit: boolean; delete: boolean };
+    settings: { view: boolean; create: boolean; edit: boolean; delete: boolean };
+    // Site-specific permissions
+    tasks: { view: boolean; create: boolean; edit: boolean; delete: boolean };
+    attendances: { view: boolean; create: boolean; edit: boolean; delete: boolean };
+    expenses: { view: boolean; create: boolean; edit: boolean; delete: boolean };
+    payments: { view: boolean; create: boolean; edit: boolean; delete: boolean };
+    materials: { view: boolean; create: boolean; edit: boolean; delete: boolean };
+    financeDashboard: { view: boolean; create: boolean; edit: boolean; delete: boolean };
   };
 }
 

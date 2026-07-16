@@ -28,11 +28,11 @@ export const ViewTask: React.FC = () => {
   const [SelectedAssignees, setSelectedAssignees] = useState([]);
   const [Photos, setPhotos] = useState<any[]>([]);
   const [TimelineLogs, setTimelineLogs] = useState([]);
-  const [StatusEnem, setStatusEnem] = useState("-1");
+  const [StatusEnum, setStatusEnum] = useState("-1");
   const [StatusLabel, setStatusLabel] = useState("");
-  const [DetilsInputsChanged, setDetilsInputsChanged] = useState(false);
+  const [DetailsInputsChanged, setDetailsInputsChanged] = useState(false);
 
-  const [ActiveSection, setActiveSection] = useState("task-section-detials");
+  const [ActiveSection, setActiveSection] = useState("task-section-details");
 
   const [CommentsItems, setCommentsItems] = useState([]);
   const [CommentsInput, setCommentsInput] = useState("");
@@ -69,7 +69,7 @@ export const ViewTask: React.FC = () => {
     else if (item.status == "3") return "6"; // on Hold
     else if (item.status == "4") return "7"; // Stopped
   };
-  const getStatusEenem = (type: string | number, delay: number) => {
+  const getStatusEnumLabel = (type: string | number, delay: number) => {
     if (type == "0") return "No dates added";
     else if (type == "1") return "Upcoming task";
     else if (type == "2") return "Not started";
@@ -83,8 +83,8 @@ export const ViewTask: React.FC = () => {
 
   const ToggleSectionItems = [
     {
-      id: "task-section-detials",
-      label: "Detials",
+      id: "task-section-details",
+      label: "Details",
     },
     {
       id: "task-section-timeline",
@@ -113,6 +113,8 @@ export const ViewTask: React.FC = () => {
         id: taskId,
         name: Name,
         description: Description,
+        category: (editingTask as any)?.category, // Keep existing category if any
+        priority: (editingTask as any)?.priority, // Keep existing priority if any
         start_date: StartDate,
         end_date: EndDate,
         unit: Unit,
@@ -122,7 +124,7 @@ export const ViewTask: React.FC = () => {
 
       const response = await tasksHandler.put(payload);
       if (response.success) {
-        setDetilsInputsChanged(false);
+        setDetailsInputsChanged(false);
         navigator(-1);
       }
     } catch (error) {
@@ -133,9 +135,9 @@ export const ViewTask: React.FC = () => {
   const HandleToggleItemClick = (item: any) => {
     setActiveSection(item.id);
 
-    let section_detials = document.getElementById(item.id);
-    if (!section_detials) return;
-    section_detials.scrollIntoView({
+    let section_details = document.getElementById(item.id);
+    if (!section_details) return;
+    section_details.scrollIntoView({
       behavior: "smooth",
       block: "start",
       inline: "nearest",
@@ -165,10 +167,10 @@ export const ViewTask: React.FC = () => {
 
         let duration = data.end_date
           ? Utils.getDuration(
-              new Date(data.start_date).getTime(),
-              new Date(data.end_date).getTime(),
-              "days"
-            )
+            new Date(data.start_date).getTime(),
+            new Date(data.end_date).getTime(),
+            "days"
+          )
           : 0;
 
         setDuration(duration);
@@ -185,9 +187,9 @@ export const ViewTask: React.FC = () => {
           "days"
         );
 
-        setStatusEnem(getStatus(data));
+        setStatusEnum(getStatus(data));
         setStatusLabel(
-          getStatusEenem(getStatus(data), `${duration_days} days`)
+          getStatusEnumLabel(getStatus(data), `${duration_days} days`)
         );
 
         let progress_timeline = data.progress_timeline || [];
@@ -232,7 +234,7 @@ export const ViewTask: React.FC = () => {
   };
 
   const HandleDetialsInput = (value: string, type: string) => {
-    setDetilsInputsChanged(true);
+    setDetailsInputsChanged(true);
     if (type == "name") {
       setName(value);
     } else if (type == "description") {
@@ -397,7 +399,7 @@ export const ViewTask: React.FC = () => {
       <div className="flex flex-col gap-1">
         <div className="text-md font-semibold text-gray-900">{Name}</div>
         <div className="flex items-center gap-2">
-          <span className={`task-tabel-status task-tabel-status-${StatusEnem}`}>
+          <span className={`task-tabel-status task-tabel-status-${StatusEnum}`}>
             {StatusLabel}
           </span>
           <span>
@@ -413,7 +415,7 @@ export const ViewTask: React.FC = () => {
     return (
       <div
         className="w-full h-[max-content] min-h-[100vh] flex flex-col gap-4"
-        id="task-section-detials"
+        id="task-section-details"
       >
         <h3 className="text-lg font-semibold text-gray-900">Details</h3>
         <div className="flex flex-col gap-4">
@@ -548,11 +550,10 @@ export const ViewTask: React.FC = () => {
                       <div className="flex flex-col gap-1">
                         <div className="text-md font-semibold text-gray-900">
                           {log.type == "progress"
-                            ? `Progress Update - ${
-                                log.progress_value
-                              } ${Unit} (${Math.round(
-                                (log.progress_value / TotalWork) * 100
-                              ).toFixed(0)}%)`
+                            ? `Progress Update - ${log.progress_value
+                            } ${Unit} (${Math.round(
+                              (log.progress_value / TotalWork) * 100
+                            ).toFixed(0)}%)`
                             : "No Progress"}
                         </div>
                         <div className="text-xs text-gray-500">
@@ -710,11 +711,10 @@ export const ViewTask: React.FC = () => {
                 onChange={(e) => setCommentsInput(e.target.value)}
               ></textarea>
               <div
-                className={`w-[34px] h-[34px] flex rounded-full items-center justify-center ${
-                  CommentsInput.length
+                className={`w-[34px] h-[34px] flex rounded-full items-center justify-center ${CommentsInput.length
                     ? "bg-blue-500 cursor-pointer"
                     : "bg-gray-300 cursor-not-allowed"
-                }`}
+                  }`}
                 onClick={() => HandleAddComtent(CommentsInput)}
               >
                 <Send className="w-4 h-4 text-white" />
@@ -731,7 +731,7 @@ export const ViewTask: React.FC = () => {
       <SideDrawer
         isOpen={true}
         onClose={() => {
-          if (DetilsInputsChanged) {
+          if (DetailsInputsChanged) {
             if (
               window.confirm(
                 "You have unsaved changes. Do you want to discard them?"
@@ -751,11 +751,10 @@ export const ViewTask: React.FC = () => {
             {ToggleSectionItems.map((item) => (
               <div
                 key={item.id}
-                className={`w-[max-content] h-[30px] flex items-center justify-center rounded-md px-[10px] text-center whitespace-nowrap cursor-pointer text-sm ${
-                  ActiveSection == item.id
+                className={`w-[max-content] h-[30px] flex items-center justify-center rounded-md px-[10px] text-center whitespace-nowrap cursor-pointer text-sm ${ActiveSection == item.id
                     ? "border border-blue-700 bg-blue-50 text-blue-700"
                     : "border border-transparent bg-transparent text-gray-700"
-                }`}
+                  }`}
                 onClick={() => HandleToggleItemClick(item)}
               >
                 {item.label}
@@ -773,7 +772,7 @@ export const ViewTask: React.FC = () => {
           <div
             className={`w-full h-[50px] border-t border-gray-200 flex gap-4 items-center justify-end p-4`}
           >
-            {DetilsInputsChanged && (
+            {DetailsInputsChanged && (
               <Button
                 size="sm"
                 type="button"

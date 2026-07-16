@@ -57,7 +57,7 @@ class Roles {
                 org_id
             }
 
-            if (id) filters._id = ObjectId(id)
+            if (id) filters._id = new ObjectId(id)
             if (status) filters.status = status
             if (search) filters.$or = [
                 { name: { $regex: search, $options: 'i' } },
@@ -96,7 +96,7 @@ class Roles {
 
             delete updateData.id
 
-            const response = await req.mongoDB.updateOne(mongoCollections.ROLES, { _id: ObjectId(id), org_id }, { $set: updateData })
+            const response = await req.mongoDB.updateOne(mongoCollections.ROLES, { _id: new ObjectId(id), org_id }, { $set: updateData })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'updateRole',
@@ -120,7 +120,7 @@ class Roles {
             const { id } = req.body
             const { org_id } = req
 
-            const response = await req.mongoDB.deleteOne(mongoCollections.ROLES, { _id: ObjectId(id), org_id })
+            const response = await req.mongoDB.deleteOne(mongoCollections.ROLES, { _id: new ObjectId(id), org_id })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'deleteRole',

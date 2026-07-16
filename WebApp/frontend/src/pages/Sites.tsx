@@ -8,7 +8,7 @@ import { Plus, Edit, Trash2, MapPin, User, Calendar } from "lucide-react";
 import { Site } from "../types";
 import SitesHandler from "../handler/sites";
 import EmployeesHandler from "../handler/employees";
-
+import { PermissionGuard } from "../components/Common/PermissionGuard";
 export const Sites: React.FC = () => {
   const [sites, setSites] = useState<Site[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -362,13 +362,15 @@ export const Sites: React.FC = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-900">All Sites</h2>
-          <Button
-            onClick={() => handleOpenModal()}
-            icon={Plus}
-            iconPosition="left"
-          >
-            Add New Site
-          </Button>
+          <PermissionGuard module="sites" action="create">
+            <Button
+              onClick={() => handleOpenModal()}
+              icon={Plus}
+              iconPosition="left"
+            >
+              Add New Site
+            </Button>
+          </PermissionGuard>
         </div>
 
         {/* Sites Grid */}
@@ -390,20 +392,24 @@ export const Sites: React.FC = () => {
                     {site.status.replace("-", " ").toUpperCase()}
                   </span>
                   <div className="flex space-x-1">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleOpenModal(site)}
-                      icon={Edit}
-                      className="disable-parent-click"
-                    />
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDelete(site.id)}
-                      icon={Trash2}
-                      className="disable-parent-click text-red-600 hover:text-red-700"
-                    />
+                    <PermissionGuard module="sites" action="edit">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleOpenModal(site)}
+                        icon={Edit}
+                        className="disable-parent-click"
+                      />
+                    </PermissionGuard>
+                    <PermissionGuard module="sites" action="delete">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDelete(site.id)}
+                        icon={Trash2}
+                        className="disable-parent-click text-red-600 hover:text-red-700"
+                      />
+                    </PermissionGuard>
                   </div>
                 </div>
 

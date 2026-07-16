@@ -35,6 +35,26 @@ class Employees {
                 message: "Failed to create employee"
             })
 
+            // Sync with USERS collection to enable login
+            try {
+                const userData = {
+                    name: insertData.name,
+                    email: insertData.email,
+                    phone: insertData.phone,
+                    role_type: 'user',
+                    role_id: insertData.role_id,
+                    org_id: org_id,
+                    status: 1,
+                    onboarding_status: '1',
+                    created_at: new Date(),
+                    updated_at: new Date()
+                }
+                await req.mongoDB.insertOne(mongoCollections.USERS, userData)
+            } catch (userSyncErr) {
+                console.error("[Employees] User sync failed:", userSyncErr)
+                // We don't fail the whole request if user sync fails, but we log it
+            }
+
             return responseHandler.successRequest({
                 name: 'createEmployee',
                 req, res,
@@ -57,7 +77,7 @@ class Employees {
                 org_id
             }
 
-            if (id) filters._id = ObjectId(id)
+            if (id) filters._id = new ObjectId(id)
             if (status) filters.status = status
             if (search) filters.$or = [
                 { name: { $regex: search, $options: 'i' } },
@@ -96,13 +116,33 @@ class Employees {
 
             delete updateData.id
 
-            const response = await req.mongoDB.updateOne(mongoCollections.EMPLOYEES, { _id: ObjectId(id), org_id }, { $set: updateData })
+            const response = await req.mongoDB.updateOne(mongoCollections.EMPLOYEES, { _id: new ObjectId(id), org_id }, { $set: updateData })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'updateEmployee',
                 req, res,
                 message: "Failed to update employee"
             })
+
+            // Sync with USERS collection
+            try {
+                const employee = await req.mongoDB.findOne(mongoCollections.EMPLOYEES, { _id: new ObjectId(id) })
+                if (employee && employee.email) {
+                    await req.mongoDB.updateOne(mongoCollections.USERS,
+                        { email: employee.email },
+                        {
+                            $set: {
+                                name: updateData.name || employee.name,
+                                role_id: updateData.role_id || employee.role_id,
+                                phone: updateData.phone || employee.phone,
+                                updated_at: new Date()
+                            }
+                        }
+                    )
+                }
+            } catch (userSyncErr) {
+                console.error("[Employees] User update sync failed:", userSyncErr)
+            }
 
             return responseHandler.successRequest({
                 name: 'updateEmployee',
@@ -120,13 +160,23 @@ class Employees {
             const { id } = req.body
             const { org_id } = req
 
-            const response = await req.mongoDB.deleteOne(mongoCollections.EMPLOYEES, { _id: ObjectId(id), org_id })
+            const employee = await req.mongoDB.findOne(mongoCollections.EMPLOYEES, { _id: new ObjectId(id), org_id })
+            const response = await req.mongoDB.deleteOne(mongoCollections.EMPLOYEES, { _id: new ObjectId(id), org_id })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'deleteEmployee',
                 req, res,
                 message: "Failed to delete employee"
             })
+
+            // Sync with USERS collection (Remove user access)
+            try {
+                if (employee && employee.email) {
+                    await req.mongoDB.deleteOne(mongoCollections.USERS, { email: employee.email })
+                }
+            } catch (userSyncErr) {
+                console.error("[Employees] User delete sync failed:", userSyncErr)
+            }
 
             return responseHandler.successRequest({
                 name: 'deleteEmployee',

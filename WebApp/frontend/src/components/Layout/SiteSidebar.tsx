@@ -16,30 +16,35 @@ import {
   MenuSquare,
 } from "lucide-react";
 
-interface SidebarProps {}
+interface SidebarProps { }
 
-const navigation = [
-  { name: "Quick Menu", href: "", icon: Blocks },
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Tasks", href: "/tasks", icon: ClipboardCheck },
-  { name: "Attendance", href: "/attendances", icon: Contact2Icon },
-  { name: "Expenses", href: "/expenses", icon: ReceiptText },
-  { name: "Payments", href: "/payments", icon: Landmark },
-  { name: "Materials", href: "/materials", icon: Package2 },
-];
-const mobile_navigation = [
-  { name: "Menus", href: "", icon: Blocks },
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Tasks", href: "/tasks", icon: ClipboardCheck },
-  { name: "Materials", href: "/materials", icon: Package2 },
-  { name: "Attendance", href: "/attendances", icon: Contact2Icon },
-  { name: "More", href: "/more", icon: MenuSquare },
-];
+import { hasPermission } from "../../components/Common/PermissionGuard";
+
+// ... (existing constants)
 
 export const SiteSidebar: React.FC<SidebarProps> = () => {
   const location = useLocation();
   const { siteId } = useParams();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  const navigation = [
+    { name: "Quick Menu", href: "", icon: Blocks },
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, module: "financeDashboard" },
+    { name: "Tasks", href: "/tasks", icon: ClipboardCheck, module: "tasks" },
+    { name: "Expenses", href: "/expenses", icon: ReceiptText, module: "expenses" },
+    { name: "Payments", href: "/payments", icon: Landmark, module: "payments" },
+    { name: "Materials", href: "/materials", icon: Package2, module: "materials" },
+  ].filter(item => !item.module || hasPermission(item.module));
+
+  const mobile_navigation = [
+    { name: "Menus", href: "", icon: Blocks },
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, module: "financeDashboard" },
+    { name: "Tasks", href: "/tasks", icon: ClipboardCheck, module: "tasks" },
+    { name: "Materials", href: "/materials", icon: Package2, module: "materials" },
+    { name: "More", href: "/more", icon: MenuSquare },
+  ].filter(item => !item.module || hasPermission(item.module));
+
+  // ... (rest of the component)
 
   const handleSetSidebarCollapsed = (value: boolean) => {
     localStorage.setItem("sidebarCollapsed", value ? "true" : "false");
@@ -56,11 +61,10 @@ export const SiteSidebar: React.FC<SidebarProps> = () => {
   return (
     <>
       <div
-        className={`site-sidebar-main shadow-lg transition-all border-r border-gray-200 duration-300 ease-in-out flex flex-col items-center bg-[var(--site-sidebar-color)] ${
-          sidebarCollapsed
-            ? "w-[var(--sidebar-closed-width)]"
-            : "w-[var(--sidebar-opened-width)]"
-        }`}
+        className={`site-sidebar-main shadow-lg transition-all border-r border-gray-200 duration-300 ease-in-out flex flex-col items-center bg-[var(--site-sidebar-color)] ${sidebarCollapsed
+          ? "w-[var(--sidebar-closed-width)]"
+          : "w-[var(--sidebar-opened-width)]"
+          }`}
       >
         {/* Header */}
         <div className="w-full p-4 border-b border-gray-200">
@@ -84,18 +88,15 @@ export const SiteSidebar: React.FC<SidebarProps> = () => {
               <NavLink
                 key={item.name}
                 to={`/site/${siteId}${item.href}`}
-                className={`flex items-center space-x-3  ${
-                  sidebarCollapsed ? "px-2" : "px-3"
-                } py-2.5 rounded-lg transition-all duration-200 ${
-                  isActive
+                className={`flex items-center space-x-3  ${sidebarCollapsed ? "px-2" : "px-3"
+                  } py-2.5 rounded-lg transition-all duration-200 ${isActive
                     ? "bg-blue-50 text-blue-700"
                     : "text-gray-900 hover:bg-gray-50 hover:text-blue-700"
-                }`}
+                  }`}
               >
                 <item.icon
-                  className={`w-5 h-5 ${
-                    isActive ? "text-blue-700" : "hover:text-blue-700"
-                  }`}
+                  className={`w-5 h-5 ${isActive ? "text-blue-700" : "hover:text-blue-700"
+                    }`}
                 />
                 {!sidebarCollapsed && (
                   <span className="font-medium">{item.name}</span>
@@ -125,16 +126,14 @@ export const SiteSidebar: React.FC<SidebarProps> = () => {
             <NavLink
               key={item.name}
               to={`/site/${siteId}${item.href}`}
-              className={`flex flex-col justify-center items-center space-y-1 px-2 py-2.5 rounded-lg transition-all duration-200 ${
-                isActive
-                  ? "text-blue-700"
-                  : "text-gray-900 hover:bg-gray-50 hover:text-blue-700"
-              }`}
+              className={`flex flex-col justify-center items-center space-y-1 px-2 py-2.5 rounded-lg transition-all duration-200 ${isActive
+                ? "text-blue-700"
+                : "text-gray-900 hover:bg-gray-50 hover:text-blue-700"
+                }`}
             >
               <item.icon
-                className={`w-10 h-10 ${
-                  isActive ? "text-blue-700" : "hover:text-blue-700"
-                }`}
+                className={`w-10 h-10 ${isActive ? "text-blue-700" : "hover:text-blue-700"
+                  }`}
               />
               <span className="text-xs font-medium">{item.name}</span>
             </NavLink>

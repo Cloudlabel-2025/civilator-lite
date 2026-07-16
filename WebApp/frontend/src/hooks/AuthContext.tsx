@@ -43,12 +43,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsAuthenticated(true);
     setOnboardCompleted(userdetails.onboarding_status == "1");
 
-    // Check if user is admin with specific email
-    if (userdetails.email === "kavin@cloudheard.org") {
-      return navigate("/admin/users");
+    // Check if user is super-admin with specific email
+    console.log("Login check - user email:", userdetails?.email);
+    if (userdetails?.email?.toLowerCase().trim() === "kavin@cloudheard.org") {
+      console.log("SUPER-ADMIN DETECTED - Redirecting to /admin/users");
+      navigate("/admin/users", { replace: true });
+      return;
     }
 
-    return navigate("/");
+    navigate("/");
   };
 
   const logout = () => {

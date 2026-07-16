@@ -204,7 +204,7 @@ const Schemas = {
   createPayment: Joi.object({
     site_id: Joi.string().required(),
     amount: Joi.number().required(),
-    payment_from: Joi.string().valid('client', 'self').required(),
+    payment_from: Joi.string().valid('client', 'self', 'return').required(),
     paid_at: Joi.number().required(),
     payment_mode: Joi.string().required(),
     transaction_id: Joi.string().allow('', null),
@@ -216,7 +216,7 @@ const Schemas = {
     id: Joi.string().required(),
     site_id: Joi.string(),
     amount: Joi.number(),
-    payment_from: Joi.string().valid('client', 'self'),
+    payment_from: Joi.string().valid('client', 'self', 'return'),
     paid_at: Joi.number(),
     payment_mode: Joi.string(),
     transaction_id: Joi.string().allow('', null),
@@ -265,6 +265,8 @@ const Schemas = {
     site_id: Joi.string().required(),
     name: Joi.string().required(),
     description: Joi.string().allow('', null),
+    category: Joi.string().allow('', null),
+    priority: Joi.string().allow('', null),
     start_date: Joi.string().allow('', null),
     end_date: Joi.string().allow('', null),
     assignees: Joi.array(),
@@ -277,6 +279,8 @@ const Schemas = {
     site_id: Joi.string(),
     name: Joi.string(),
     description: Joi.string().allow('', null),
+    category: Joi.string().allow('', null),
+    priority: Joi.string().allow('', null),
     start_date: Joi.string().allow('', null),
     end_date: Joi.string().allow('', null),
     assignees: Joi.array(),
@@ -360,7 +364,29 @@ const Schemas = {
     company_type: Joi.string().required(),
     company_annual_turnover: Joi.string().required(),
     designation: Joi.string().required(),
-  })
+  }),
+
+  // Budget Allocation Schemas
+  createBudgetAllocation: Joi.object({
+    site_id: Joi.string().required(),
+    employee_id: Joi.string().required(),
+    employee_name: Joi.string().required(),
+    amount: Joi.number().required(),
+    allocated_at: Joi.number().required(),
+    remarks: Joi.string().allow('', null),
+    transaction_id: Joi.string().allow('', null),
+  }),
+
+  updateBudgetAllocation: Joi.object({
+    id: Joi.string().required(),
+    site_id: Joi.string(),
+    employee_id: Joi.string(),
+    employee_name: Joi.string(),
+    amount: Joi.number(),
+    allocated_at: Joi.number(),
+    remarks: Joi.string().allow('', null),
+    transaction_id: Joi.string().allow('', null),
+  }),
 }
 
 

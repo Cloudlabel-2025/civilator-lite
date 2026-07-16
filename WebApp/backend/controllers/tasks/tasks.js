@@ -69,7 +69,7 @@ class Tasks {
                 org_id
             }
 
-            if (id) filters._id = ObjectId(id)
+            if (id) filters._id = new ObjectId(id)
             if (status) filters.status = status
             if (site_id) filters.site_id = site_id
             if (search) filters.$or = [
@@ -110,7 +110,7 @@ class Tasks {
 
             delete updateData.id
 
-            const response = await req.mongoDB.updateOne(mongoCollections.TASKS, { _id: ObjectId(id), org_id }, { $set: updateData })
+            const response = await req.mongoDB.updateOne(mongoCollections.TASKS, { _id: new ObjectId(id), org_id }, { $set: updateData })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'updateTask',
@@ -134,7 +134,7 @@ class Tasks {
             const { id } = req.body
             const { org_id } = req
 
-            const response = await req.mongoDB.deleteOne(mongoCollections.TASKS, { _id: ObjectId(id), org_id })
+            const response = await req.mongoDB.deleteOne(mongoCollections.TASKS, { _id: new ObjectId(id), org_id })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'deleteTask',
@@ -162,7 +162,7 @@ class Tasks {
             const { task_id, message } = req.body
 
 
-            const get_task_details = await req.mongoDB.findOne(mongoCollections.TASKS, { _id: ObjectId(task_id), org_id }, { project: { _id: 1, comments: 1 } })
+            const get_task_details = await req.mongoDB.findOne(mongoCollections.TASKS, { _id: new ObjectId(task_id), org_id }, { project: { _id: 1, comments: 1 } })
 
             if (!get_task_details) return responseHandler.failedRequest({
                 name: 'createTaskComment',
@@ -185,7 +185,7 @@ class Tasks {
                 comments,
                 updated_at: new Date()
             }
-            const response = await req.mongoDB.updateOne(mongoCollections.TASKS, { _id: ObjectId(task_id), org_id }, { $set: updatetData })
+            const response = await req.mongoDB.updateOne(mongoCollections.TASKS, { _id: new ObjectId(task_id), org_id }, { $set: updatetData })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'createTaskComment',
@@ -216,7 +216,7 @@ class Tasks {
                 message: "Task and comment id is required"
             })
 
-            const get_task_details = await req.mongoDB.findOne(mongoCollections.TASKS, { _id: ObjectId(task_id), org_id }, { project: { _id: 1, comments: 1 } })
+            const get_task_details = await req.mongoDB.findOne(mongoCollections.TASKS, { _id: new ObjectId(task_id), org_id }, { project: { _id: 1, comments: 1 } })
 
             if (!get_task_details) return responseHandler.failedRequest({
                 name: 'deleteTaskComment',
@@ -233,7 +233,7 @@ class Tasks {
                 comments,
                 updated_at: new Date()
             }
-            const response = await req.mongoDB.updateOne(mongoCollections.TASKS, { _id: ObjectId(task_id), org_id }, { $set: updatetData })
+            const response = await req.mongoDB.updateOne(mongoCollections.TASKS, { _id: new ObjectId(task_id), org_id }, { $set: updatetData })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'deleteTaskComment',
@@ -273,7 +273,7 @@ class Tasks {
             attendances = JSON.parse(attendances || '[]')
             progress_value = parseFloat(progress_value || 0)
 
-            const get_task_details = await req.mongoDB.findOne(mongoCollections.TASKS, { _id: ObjectId(task_id), org_id }, { project: { _id: 1, work_done_progress: 1, progress_timeline: 1, } })
+            const get_task_details = await req.mongoDB.findOne(mongoCollections.TASKS, { _id: new ObjectId(task_id), org_id }, { project: { _id: 1, work_done_progress: 1, progress_timeline: 1, } })
 
             if (!get_task_details) return responseHandler.failedRequest({
                 name: 'updateTaskProgress',
@@ -332,7 +332,7 @@ class Tasks {
                 progress_timeline,
                 updated_at: new Date()
             }
-            const response = await req.mongoDB.updateOne(mongoCollections.TASKS, { _id: ObjectId(task_id), org_id }, { $set: updatetData })
+            const response = await req.mongoDB.updateOne(mongoCollections.TASKS, { _id: new ObjectId(task_id), org_id }, { $set: updatetData })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'updateTaskProgress',
@@ -363,7 +363,7 @@ class Tasks {
 
 
 
-            const get_task_details = await req.mongoDB.findOne(mongoCollections.TASKS, { _id: ObjectId(task_id), org_id }, { project: { _id: 1, work_done_progress: 1, progress_timeline: 1, } })
+            const get_task_details = await req.mongoDB.findOne(mongoCollections.TASKS, { _id: new ObjectId(task_id), org_id }, { project: { _id: 1, work_done_progress: 1, progress_timeline: 1, } })
 
             if (!get_task_details) return responseHandler.failedRequest({
                 name: 'deleteTaskProgress',
@@ -397,7 +397,7 @@ class Tasks {
                 progress_timeline,
                 updated_at: new Date()
             }
-            const response = await req.mongoDB.updateOne(mongoCollections.TASKS, { _id: ObjectId(task_id), org_id }, { $set: updatetData })
+            const response = await req.mongoDB.updateOne(mongoCollections.TASKS, { _id: new ObjectId(task_id), org_id }, { $set: updatetData })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'deleteTaskProgress',

@@ -25,7 +25,7 @@ class Token {
                 })
 
 
-                let { _id, org_id, name, email, role_type } = await response
+                let { _id, org_id, name, email, role_type, permissions } = await response
 
 
                 req.user_id = _id
@@ -33,6 +33,7 @@ class Token {
                 req.user_name = name
                 req.user_email = email
                 req.role_type = role_type
+                req.permissions = permissions || {}
 
                 next()
 
@@ -65,7 +66,7 @@ class Token {
                     })
                 })
 
-                let { id, email, role_type } = await response
+                let { _id, email, role_type, org_id, name } = await response
 
                 if (role_type != "admin") {
                     return res.status(400).json({
@@ -74,8 +75,9 @@ class Token {
                     })
                 }
 
-                req.user_id = id
-                req.user_name = email
+                req.user_id = _id
+                req.org_id = org_id
+                req.user_name = name || email
                 req.user_email = email
                 req.role_type = role_type
 

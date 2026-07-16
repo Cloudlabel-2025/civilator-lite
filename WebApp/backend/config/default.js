@@ -55,7 +55,9 @@ module.exports = {
 		TASKS: `tasks`,
 		ATTENDANCES: `attendances`,
 		ATTENDANC_EVENTS: `attendances_events`,
-		CONTACT_US: `contact_us`
+		CONTACT_US: `contact_us`,
+		BUDGET_ALLOCATIONS: `budget_allocations`,
+		NOTIFICATIONS: `notifications`
 	},
 
 

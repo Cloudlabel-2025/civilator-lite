@@ -14,21 +14,30 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-interface SidebarProps {}
+interface SidebarProps { }
 
-const navigation = [
-  // { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Sites", href: "/sites", icon: Building2 },
-  { name: "Vendors", href: "/vendors", icon: Users },
-  { name: "Employees", href: "/employees", icon: UserCheck },
-  { name: "Master Database", href: "/master-database", icon: Database },
-  { name: "Role Management", href: "/roles", icon: Shield },
-  { name: "Settings", href: "/settings", icon: Settings },
-];
+import { hasPermission } from "../../components/Common/PermissionGuard";
+
+// ... (existing constants)
 
 export const Sidebar: React.FC<SidebarProps> = () => {
   const location = useLocation();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  const userDetailsStr = localStorage.getItem("userdetails");
+  const userDetails = userDetailsStr ? JSON.parse(userDetailsStr) : null;
+  const isSuperAdmin = userDetails?.email?.toLowerCase().trim() === "kavin@cloudheard.org";
+
+  const navigation = isSuperAdmin ? [] : [
+    { name: "Sites", href: "/sites", icon: Building2, module: "sites" },
+    { name: "Vendors", href: "/vendors", icon: Users, module: "vendors" },
+    { name: "Employees", href: "/employees", icon: UserCheck, module: "employees" },
+    { name: "Master Database", href: "/master-database", icon: Database, module: "masterDatabase" },
+    { name: "Role Management", href: "/roles", icon: Shield, module: "roleManagement" },
+    { name: "System Settings", href: "/settings", icon: Settings, module: "settings" },
+  ].filter(item => hasPermission(item.module));
+
+  // ... (rest of the component)
 
   const handleSetSidebarCollapsed = (value: boolean) => {
     localStorage.setItem("sidebarCollapsed", value ? "true" : "false");
@@ -44,11 +53,10 @@ export const Sidebar: React.FC<SidebarProps> = () => {
   }, []);
   return (
     <div
-      className={`shadow-lg transition-all duration-300 ease-in-out flex flex-col items-center bg-[var(--sidebar-color)] ${
-        sidebarCollapsed
-          ? "w-[var(--sidebar-closed-width)]"
-          : "w-[var(--sidebar-opened-width)]"
-      }`}
+      className={`shadow-lg transition-all duration-300 ease-in-out flex flex-col items-center bg-[var(--sidebar-color)] ${sidebarCollapsed
+        ? "w-[var(--sidebar-closed-width)]"
+        : "w-[var(--sidebar-opened-width)]"
+        }`}
     >
       {/* Header */}
       <div className="w-full p-4  mt-4">
@@ -72,18 +80,15 @@ export const Sidebar: React.FC<SidebarProps> = () => {
             <NavLink
               key={item.name}
               to={item.href}
-              className={`flex items-center space-x-3  ${
-                sidebarCollapsed ? "px-2" : "px-3"
-              } py-2.5 rounded-lg transition-all duration-200 ${
-                isActive
+              className={`flex items-center space-x-3  ${sidebarCollapsed ? "px-2" : "px-3"
+                } py-2.5 rounded-lg transition-all duration-200 ${isActive
                   ? "bg-blue-50 text-blue-700"
                   : "text-white hover:bg-gray-50 hover:text-gray-900"
-              }`}
+                }`}
             >
               <item.icon
-                className={`w-5 h-5 ${
-                  isActive ? "text-blue-700" : "hover:text-gray-900"
-                }`}
+                className={`w-5 h-5 ${isActive ? "text-blue-700" : "hover:text-gray-900"
+                  }`}
               />
               {!sidebarCollapsed && (
                 <span className="font-medium">{item.name}</span>

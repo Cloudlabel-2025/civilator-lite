@@ -86,7 +86,7 @@ class Payments {
                 org_id
             }
 
-            if (id) filters._id = ObjectId(id)
+            if (id) filters._id = new ObjectId(id)
             if (site_id) filters.site_id = site_id
             if (payment_from) filters.payment_from = payment_from
             if (payment_mode) filters.payment_mode = payment_mode
@@ -119,7 +119,7 @@ class Payments {
             let attachments = []
 
             // Get existing payment record to check attachments
-            const existingPayment = await req.mongoDB.findOne(mongoCollections.PAYMENTS, { _id: ObjectId(id), org_id })
+            const existingPayment = await req.mongoDB.findOne(mongoCollections.PAYMENTS, { _id: new ObjectId(id), org_id })
             const existingAttachments = existingPayment?.attachments || []
 
             // Remove files that are no longer present
@@ -178,7 +178,7 @@ class Payments {
 
             delete updateData.id
 
-            const response = await req.mongoDB.updateOne(mongoCollections.PAYMENTS, { _id: ObjectId(id), org_id }, { $set: updateData })
+            const response = await req.mongoDB.updateOne(mongoCollections.PAYMENTS, { _id: new ObjectId(id), org_id }, { $set: updateData })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'updatePayment',
@@ -202,7 +202,7 @@ class Payments {
             const { id } = req.body
             const { org_id } = req
 
-            const response = await req.mongoDB.deleteOne(mongoCollections.PAYMENTS, { _id: ObjectId(id), org_id })
+            const response = await req.mongoDB.deleteOne(mongoCollections.PAYMENTS, { _id: new ObjectId(id), org_id })
 
             if (!response.acknowledged) return responseHandler.failedRequest({
                 name: 'deletePayment',

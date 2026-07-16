@@ -13,6 +13,9 @@ import PreviewFiles from "../../components/Common/PreviewFiles";
 import { StatsCard } from "../../components/Common/StatsCard";
 import VendorsHandler from "../../handler/vendors";
 import ExpensesHandler from "../../handler/expenses";
+import BudgetAllocationsHandler from "../../handler/budget_allocations";
+import { PermissionGuard } from "../../components/Common/PermissionGuard";
+import { useAuth } from "../../hooks/AuthContext";
 
 export const Expenses: React.FC = () => {
   const { siteId } = useParams();
@@ -22,6 +25,8 @@ export const Expenses: React.FC = () => {
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const expensesHandler = new ExpensesHandler();
   const vendorsHandler = new VendorsHandler();
+  const budgetAllocationsHandler = new BudgetAllocationsHandler();
+  const user = JSON.parse(localStorage.getItem("userdetails") || "{}");
   const CurrentDate = new Date().toISOString().split("T")[0];
   const [formData, setFormData] = useState({
     amount: "",
@@ -45,18 +50,11 @@ export const Expenses: React.FC = () => {
       borderColor: "border-blue-600",
     },
     {
-      title: "Credit Payments",
+      title: "Budget Allocated",
       value: 0,
       icon: ReceiptText,
-      iconColor: "text-red-600",
-      borderColor: "border-red-600",
-    },
-    {
-      title: "Debit Payments",
-      value: 0,
-      icon: ReceiptText,
-      iconColor: "text-green-600",
-      borderColor: "border-green-600",
+      iconColor: "text-purple-600",
+      borderColor: "border-purple-600",
     },
   ]);
 
@@ -173,29 +171,58 @@ export const Expenses: React.FC = () => {
           })
         );
 
+        // Fetch Budget Allocations to include in Expenses list
+        const budgetResponse = await budgetAllocationsHandler.get({ site_id: siteId });
+        let totalAllocated = 0;
+        let formattedAllocations: any[] = [];
+
+        if (budgetResponse.success) {
+          const allocations = budgetResponse.data.items || [];
+          const filteredAllocations = allocations.filter((a: any) => a.status === "accepted");
+
+          totalAllocated = filteredAllocations.reduce((acc: number, cur: any) => acc + (Number(cur.amount) || 0), 0);
+
+          formattedAllocations = filteredAllocations.map((a: any) => ({
+            ...a,
+            id: a.id || a._id,
+            paid_at: String(new Date(a.accepted_at || a.created_at).getTime()),
+            category: "Budget Update",
+            category_label: "Budget Allocation",
+            party_name: "Staff Wallet",
+            payment_mode: "Transfer",
+            payment_type: "debit",
+            remarks: a.remarks || `Allocated for site work. Trans ID: ${a.transaction_id || 'N/A'}`,
+            amount: Number(a.amount),
+            is_budget: true
+          }));
+        }
+
+        // Merge regular expenses and formatted budget allocations
+        const allItems = [...items, ...formattedAllocations].sort((a, b) => {
+          return Number(b.paid_at) - Number(a.paid_at);
+        });
+
+        // Re-assign SNO based on the new sorted order
+        const finalizedList = allItems.map((item, idx) => ({
+          ...item,
+          sno: idx + 1
+        }));
+
+        // Calculate card values
         let _statsCardsData = [...StatsCardsData];
-        _statsCardsData[0].value = `₹${items
-          .reduce((acc: number, cur: Expense) => acc + Number(cur.amount), 0)
-          .toLocaleString()}`;
+        const rawExpensesTotal = items.reduce((acc: number, cur: Expense) => acc + Number(cur.amount), 0);
 
-        _statsCardsData[1].value = `₹${items
-          .reduce(
-            (acc: number, cur: Expense) =>
-              acc + (cur.payment_type === "credit" ? Number(cur.amount) : 0),
-            0
-          )
-          .toLocaleString()}`;
+        // Card 1: Total Actual Expenses (spent amount)
+        _statsCardsData[0].value = `₹${rawExpensesTotal.toLocaleString()}`;
 
-        _statsCardsData[2].value = `₹${items
-          .reduce(
-            (acc: number, cur: Expense) =>
-              acc + (cur.payment_type === "debit" ? Number(cur.amount) : 0),
-            0
-          )
-          .toLocaleString()}`;
+        // Card 2: Remaining Budget (Allocated - Expenses)
+        _statsCardsData[1].title = "Remaining Budget";
+        _statsCardsData[1].value = `₹${(totalAllocated - rawExpensesTotal).toLocaleString()}`;
+        _statsCardsData[1].iconColor = "text-purple-600";
+        _statsCardsData[1].borderColor = "border-purple-600";
 
         setStatsCardsData(_statsCardsData);
-        setExpenses(items);
+        setExpenses(finalizedList);
       }
     } catch (error) {
       console.error("Error loading expenses:", error);
@@ -232,9 +259,8 @@ export const Expenses: React.FC = () => {
     };
     return (
       <span
-        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-          colors[type as keyof typeof colors]
-        }`}
+        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${colors[type as keyof typeof colors]
+          }`}
       >
         {type}
       </span>
@@ -319,6 +345,12 @@ export const Expenses: React.FC = () => {
   ];
 
   const categoryOptions = [
+    { value: "salary", label: "Salary / Wages" },
+    { value: "material", label: "Material Purchase" },
+    { value: "rental", label: "Equipment Rental" },
+    { value: "fuel", label: "Fuel & Transport" },
+    { value: "maintenance", label: "Site Maintenance" },
+    { value: "subcontractor", label: "Sub-contractor Payment" },
     { value: "petty_cash", label: "Petty Cash" },
     { value: "vendor_advance", label: "Advance to Vendor" },
     { value: "other", label: "Other" },
@@ -419,16 +451,6 @@ export const Expenses: React.FC = () => {
               options={paymentModeOptions}
               required
             />
-            <FormField
-              label="Payment Type"
-              type="select"
-              value={formData.payment_type}
-              onChange={(value) =>
-                setFormData({ ...formData, payment_type: value as string })
-              }
-              options={paymentTypeOptions}
-              required
-            />
           </div>
 
           <FormField
@@ -488,13 +510,15 @@ export const Expenses: React.FC = () => {
         </div>
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-900">Expenses</h2>
-          <Button
-            onClick={() => handleOpenModal()}
-            icon={Plus}
-            iconPosition="left"
-          >
-            Add New
-          </Button>
+          <PermissionGuard module="expenses" action="create">
+            <Button
+              onClick={() => handleOpenModal()}
+              icon={Plus}
+              iconPosition="left"
+            >
+              Add New
+            </Button>
+          </PermissionGuard>
         </div>
 
         <Table
@@ -508,19 +532,23 @@ export const Expenses: React.FC = () => {
           }
           actions={(expense) => (
             <>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleOpenModal(expense)}
-                icon={Edit}
-              />
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleDelete(expense.id)}
-                icon={Trash2}
-                className="text-red-600 hover:text-red-700"
-              />
+              <PermissionGuard module="expenses" action="edit">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleOpenModal(expense)}
+                  icon={Edit}
+                />
+              </PermissionGuard>
+              <PermissionGuard module="expenses" action="delete">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleDelete(expense.id)}
+                  icon={Trash2}
+                  className="text-red-600 hover:text-red-700"
+                />
+              </PermissionGuard>
             </>
           )}
         />

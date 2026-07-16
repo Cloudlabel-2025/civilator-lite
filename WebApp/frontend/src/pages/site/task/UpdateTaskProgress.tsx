@@ -45,7 +45,7 @@ export const UpdateTaskProgress: React.FC = () => {
   const [Attachments, setAttachments] = useState([]);
   const [Remarks, setRemarks] = useState("");
 
-  const [Materialsused, setMaterialsused] = useState<any[]>([]);
+  const [MaterialsUsed, setMaterialsUsed] = useState<any[]>([]);
   const [Attendance, setAttendance] = useState<any[]>([]);
 
   const [StatusEnem, setStatusEnem] = useState("-1");
@@ -84,8 +84,9 @@ export const UpdateTaskProgress: React.FC = () => {
       return "5"; // Delayed by days
     else if (item.status == "3") return "6"; // on Hold
     else if (item.status == "4") return "7"; // Stopped
+    else if (item.work_done_progress >= item.total_work_progress) return "4"
   };
-  const getStatusEenem = (type: string | number, delay: number) => {
+  const getStatusEnum = (type: string | number, delay: number) => {
     if (type == "0") return "No dates added";
     else if (type == "1") return "Upcoming task";
     else if (type == "2") return "Not started";
@@ -131,7 +132,7 @@ export const UpdateTaskProgress: React.FC = () => {
 
         setStatusEnem(getStatus(data));
         setStatusLabel(
-          getStatusEenem(getStatus(data), `${duration_days} days`)
+          getStatusEnum(getStatus(data), `${duration_days} days`)
         );
       }
     } catch (error) {
@@ -160,8 +161,8 @@ export const UpdateTaskProgress: React.FC = () => {
   };
 
   const HandleAddMaterial = (e: any) => {
-    setMaterialsused([
-      ...Materialsused,
+    setMaterialsUsed([
+      ...MaterialsUsed,
       { material_id: "", material_name: "", quantity: 0 },
     ]);
   };
@@ -181,7 +182,7 @@ export const UpdateTaskProgress: React.FC = () => {
       formDataToSend.append("type", ActiveSection);
       formDataToSend.append("progress_value", String(TotalWorkDoneChanged));
       formDataToSend.append("remarks", Remarks);
-      formDataToSend.append("materials", JSON.stringify(Materialsused || "[]"));
+      formDataToSend.append("materials", JSON.stringify(MaterialsUsed || "[]"));
       formDataToSend.append("attendances", JSON.stringify(Attendance));
 
       Attachments.forEach((file) => {
@@ -207,7 +208,7 @@ export const UpdateTaskProgress: React.FC = () => {
     loadMasterLabours();
   }, []);
 
-  const TitleChildres = (
+  const TitleChildren = (
     <>
       <div className="flex flex-col gap-1">
         <div className="text-md font-semibold text-gray-900">
@@ -221,8 +222,8 @@ export const UpdateTaskProgress: React.FC = () => {
             {TotalWorkDone ? TotalWorkDone + " " + Unit + " " : ""}(
             {TotalWork
               ? parseFloat(
-                  String((Math.round(TotalWorkDone) / TotalWork) * 100)
-                ).toFixed(2)
+                String((Math.round(TotalWorkDone) / TotalWork) * 100)
+              ).toFixed(2)
               : "0"}
             %)
           </span>
@@ -236,7 +237,7 @@ export const UpdateTaskProgress: React.FC = () => {
       <SideDrawer
         isOpen={true}
         onClose={() => navigator(-1)}
-        title_children={TitleChildres}
+        title_children={TitleChildren}
         size="md"
       >
         <div className="w-full h-full flex flex-col select-none">
@@ -266,9 +267,8 @@ export const UpdateTaskProgress: React.FC = () => {
                     type="number"
                     value={TotalWorkDoneChanged}
                     max={TotalWork}
-                    max_label={`${
-                      TotalWorkDoneChanged || TotalWorkDone
-                    }/${TotalWork} ${Unit} finished`}
+                    max_label={`${TotalWorkDoneChanged || TotalWorkDone
+                      }/${TotalWork} ${Unit} finished`}
                     min={0}
                     onChange={(value) => {
                       if (value > TotalWork) setTotalWorkDoneChanged(TotalWork);
@@ -295,7 +295,7 @@ export const UpdateTaskProgress: React.FC = () => {
 
               {ActiveSection == "progress" ? (
                 <>
-                  {Materialsused.length ? (
+                  {MaterialsUsed.length ? (
                     <div className="flex flex-col gap-3 border-b border-gray-200 pb-4">
                       <div className="flex justify-between items-center">
                         <span className="text-md font-semibold">
@@ -310,7 +310,7 @@ export const UpdateTaskProgress: React.FC = () => {
                         </div>
                       </div>
                       <div className="flex flex-col gap-3">
-                        {Materialsused.map((item, index) => (
+                        {MaterialsUsed.map((item, index) => (
                           <div key={index} className="flex gap-2 items-end">
                             <FormField
                               label={`Material ${index + 1}`}
@@ -321,27 +321,26 @@ export const UpdateTaskProgress: React.FC = () => {
                                 let material = MasterMaterials.find(
                                   (material) => material.id === value
                                 );
-                                const newMaterialsused = [...Materialsused];
-                                newMaterialsused[index].material_id =
+                                const newMaterialsUsed = [...MaterialsUsed];
+                                newMaterialsUsed[index].material_id =
                                   material?.id || "";
-                                newMaterialsused[index].unit =
+                                newMaterialsUsed[index].unit =
                                   material?.unit || "";
-                                newMaterialsused[index].material_name =
+                                newMaterialsUsed[index].material_name =
                                   material?.name || "";
-                                setMaterialsused(newMaterialsused);
+                                setMaterialsUsed(newMaterialsUsed);
                               }}
                               className="w-[60%]"
                             />
                             <FormField
-                              label={`Quantity ${
-                                item.unit ? `(${item.unit})` : ""
-                              }`}
+                              label={`Quantity ${item.unit ? `(${item.unit})` : ""
+                                }`}
                               type="number"
                               value={item.quantity}
                               onChange={(value) => {
-                                const newMaterialsused = [...Materialsused];
-                                newMaterialsused[index].quantity = value;
-                                setMaterialsused(newMaterialsused);
+                                const newMaterialsUsed = [...MaterialsUsed];
+                                newMaterialsUsed[index].quantity = value;
+                                setMaterialsUsed(newMaterialsUsed);
                               }}
                               className="w-[30%]"
                             />
@@ -349,9 +348,9 @@ export const UpdateTaskProgress: React.FC = () => {
                             <Trash2
                               className="w-5 h-5 text-red-700 cursor-pointer mb-2"
                               onClick={() => {
-                                const newMaterialsused = [...Materialsused];
-                                newMaterialsused.splice(index, 1);
-                                setMaterialsused(newMaterialsused);
+                                const newMaterialsUsed = [...MaterialsUsed];
+                                newMaterialsUsed.splice(index, 1);
+                                setMaterialsUsed(newMaterialsUsed);
                               }}
                             />
                           </div>

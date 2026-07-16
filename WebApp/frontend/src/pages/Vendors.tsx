@@ -7,6 +7,7 @@ import { Table } from "../components/Common/Table";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { Vendor } from "../types";
 import VendorsHandler from "../handler/vendors";
+import { PermissionGuard } from "../components/Common/PermissionGuard";
 
 export const Vendors: React.FC = () => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -129,9 +130,8 @@ export const Vendors: React.FC = () => {
     };
     return (
       <span
-        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-          colors[category as keyof typeof colors]
-        }`}
+        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${colors[category as keyof typeof colors]
+          }`}
       >
         {category}
       </span>
@@ -315,13 +315,15 @@ export const Vendors: React.FC = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-900">All Vendors</h2>
-          <Button
-            onClick={() => handleOpenModal()}
-            icon={Plus}
-            iconPosition="left"
-          >
-            Add New Vendor
-          </Button>
+          <PermissionGuard module="vendors" action="create">
+            <Button
+              onClick={() => handleOpenModal()}
+              icon={Plus}
+              iconPosition="left"
+            >
+              Add New Vendor
+            </Button>
+          </PermissionGuard>
         </div>
 
         {/* Vendors Table */}
@@ -334,19 +336,23 @@ export const Vendors: React.FC = () => {
           }
           actions={(vendor) => (
             <>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleOpenModal(vendor)}
-                icon={Edit}
-              />
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleDelete(vendor.id)}
-                icon={Trash2}
-                className="text-red-600 hover:text-red-700"
-              />
+              <PermissionGuard module="vendors" action="edit">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleOpenModal(vendor)}
+                  icon={Edit}
+                />
+              </PermissionGuard>
+              <PermissionGuard module="vendors" action="delete">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleDelete(vendor.id)}
+                  icon={Trash2}
+                  className="text-red-600 hover:text-red-700"
+                />
+              </PermissionGuard>
             </>
           )}
         />

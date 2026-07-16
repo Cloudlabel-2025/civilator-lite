@@ -6,11 +6,14 @@ import { Modal } from "../../components/Common/Modal";
 import { FormField } from "../../components/Common/FormField";
 import FileUpload from "../../components/Common/UploadFiles";
 import { Table } from "../../components/Common/Table";
-import { Plus, Edit, Trash2, FileText, Landmark } from "lucide-react";
+import { Plus, Edit, Trash2, FileText, Landmark, Wallet } from "lucide-react";
 import utils from "../../helpers/utils";
 import PreviewFiles from "../../components/Common/PreviewFiles";
 import { StatsCard } from "../../components/Common/StatsCard";
 import PaymentsHandler from "../../handler/payments";
+import EmployeesHandler from "../../handler/employees";
+import BudgetAllocationsHandler from "../../handler/budget_allocations";
+import { PermissionGuard } from "../../components/Common/PermissionGuard";
 
 interface Payment {
   id: string;
@@ -42,6 +45,19 @@ export const Payments: React.FC = () => {
     attachments: [] as File[],
   });
 
+  const [isAllocateModalOpen, setIsAllocateModalOpen] = useState(false);
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [allocateFormData, setAllocateFormData] = useState({
+    employee_id: "",
+    employee_name: "",
+    amount: "",
+    allocated_at: CurrentDate,
+    remarks: "",
+  });
+
+  const budgetAllocationsHandler = new BudgetAllocationsHandler();
+  const employeesHandler = new EmployeesHandler();
+
   const [StatsCardsData, setStatsCardsData] = useState<any[]>([
     {
       title: "Total Payments",
@@ -63,6 +79,13 @@ export const Payments: React.FC = () => {
       icon: Landmark,
       iconColor: "text-green-600",
       borderColor: "border-green-600",
+    },
+    {
+      title: "Budget Allocated",
+      value: 0,
+      icon: Wallet,
+      iconColor: "text-purple-600",
+      borderColor: "border-purple-600",
     },
   ]);
 
@@ -136,27 +159,74 @@ export const Payments: React.FC = () => {
     }
   };
 
-  const handleDelete = async (paymentId: string) => {
-    if (window.confirm("Are you sure you want to delete this payment?")) {
+  const handleDelete = async (payment: any) => {
+    if (window.confirm("Are you sure you want to delete this entry?")) {
       try {
-        await paymentsHandler.delete({ id: paymentId });
+        if (payment.payment_from === "allocation") {
+          await budgetAllocationsHandler.delete({ id: payment.id });
+        } else {
+          await paymentsHandler.delete({ id: payment.id });
+        }
         loadPayments();
       } catch (error) {
-        console.error("Error deleting payment:", error);
+        console.error("Error deleting entry:", error);
       }
+    }
+  };
+
+  const handleAllocateOpen = async () => {
+    try {
+      const response = await employeesHandler.get({});
+      if (response.success) {
+        setEmployees(response.data.items || []);
+      }
+      setAllocateFormData({
+        employee_id: "",
+        employee_name: "",
+        amount: "",
+        allocated_at: CurrentDate,
+        remarks: "",
+      });
+      setIsAllocateModalOpen(true);
+    } catch (error) {
+      console.error("Error loading employees:", error);
+    }
+  };
+
+  const handleAllocateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const selectedEmployee = employees.find(emp => emp.id === allocateFormData.employee_id);
+      const response = await budgetAllocationsHandler.post({
+        ...allocateFormData,
+        employee_name: selectedEmployee?.name || "",
+        site_id: siteId,
+        allocated_at: new Date(allocateFormData.allocated_at).getTime(),
+      });
+
+      if (response.success) {
+        setIsAllocateModalOpen(false);
+        loadPayments();
+      } else {
+        alert(response.message || "Error allocating budget");
+      }
+    } catch (error) {
+      console.error("Error allocating budget:", error);
     }
   };
 
   const loadPayments = async () => {
     try {
-      const response = await paymentsHandler.get({
-        site_id: siteId,
-      });
-      if (response.success) {
-        let items = response.data.items || [];
+      const response = await paymentsHandler.get({ site_id: siteId });
+      const budgetResponse = await budgetAllocationsHandler.get({ site_id: siteId });
 
-        items = await Promise.all(
-          items.map(async (i: any, idx: number) => {
+      if (response.success && budgetResponse.success) {
+        let paymentItems = response.data.items || [];
+        let budgetItems = budgetResponse.data.items || [];
+
+        // Process payments
+        paymentItems = await Promise.all(
+          paymentItems.map(async (i: any) => {
             let attachments = i.attachments || [];
             attachments = await Promise.all(
               attachments.map(async (a: any) => {
@@ -164,37 +234,64 @@ export const Payments: React.FC = () => {
               })
             );
             return {
-              sno: idx + 1,
               ...i,
               attachments: attachments || [],
             };
           })
         );
 
+        // Process budget allocations to match list structure
+        const processedBudgets = budgetItems.map((b: any) => ({
+          ...b,
+          payment_from: 'allocation',
+          paid_at: b.allocated_at, // Map for sorting/display
+          remarks: b.remarks || `Allocated to ${b.employee_name}`,
+        }));
+
+        // Merge and sort by date descending
+        const allItems = [...paymentItems, ...processedBudgets].sort((a, b) =>
+          Number(b.paid_at) - Number(a.paid_at)
+        );
+
+        // Add S.No after sorting
+        const finalItems = allItems.map((item, idx) => ({
+          ...item,
+          sno: idx + 1,
+        }));
+
         let _statsCardsData = [...StatsCardsData];
-        _statsCardsData[0].value = `₹${items
-          .reduce((acc: number, cur: Payment) => acc + Number(cur.amount), 0)
-          .toLocaleString()}`;
 
-        _statsCardsData[1].value = `₹${items
-          .reduce(
-            (acc: number, cur: Payment) =>
-              acc + (cur.payment_from === "client" ? Number(cur.amount) : 0),
-            0
-          )
-          .toLocaleString()}`;
+        // 1. Budget Allocated (Purple Card)
+        const totalAllocated = budgetItems.reduce((acc: number, cur: any) =>
+          acc + (Number(cur.amount) || 0), 0);
+        _statsCardsData[3].value = `₹${totalAllocated.toLocaleString()}`;
 
-        _statsCardsData[2].value = `₹${items
-          .reduce(
-            (acc: number, cur: Payment) =>
-              acc + (cur.payment_from === "self" ? Number(cur.amount) : 0),
-            0
-          )
-          .toLocaleString()}`;
+        // 2. Client Payments (Red Card) = Client + Return (Project revenue recognition)
+        const clientTotal = paymentItems.reduce((acc: number, cur: any) => {
+          if (cur.payment_from === 'client' || cur.payment_from === 'return') {
+            return acc + (Number(cur.amount) || 0);
+          }
+          return acc;
+        }, 0);
+        _statsCardsData[1].value = `₹${clientTotal.toLocaleString()}`;
+
+        // 3. My Payments (Green Card) = Self - Return (Net builder investment)
+        const selfTotal = paymentItems.reduce((acc: number, cur: any) => {
+          if (cur.payment_from === 'self') return acc + (Number(cur.amount) || 0);
+          if (cur.payment_from === 'return') return acc - (Number(cur.amount) || 0);
+          return acc;
+        }, 0);
+        _statsCardsData[2].value = `₹${selfTotal.toLocaleString()}`;
+
+        // 4. Total Payments (Blue Card) = (Client + Self) - Allocated
+        const grossCashIn = paymentItems.reduce((acc: number, cur: any) => {
+          if (cur.payment_from === 'return') return acc; // Return is a deduction from builder investment, not total inflow
+          return acc + (Number(cur.amount) || 0);
+        }, 0);
+        _statsCardsData[0].value = `₹${(grossCashIn - totalAllocated).toLocaleString()}`;
 
         setStatsCardsData(_statsCardsData);
-
-        setPayments(items);
+        setPayments(finalItems);
       }
     } catch (error) {
       console.error("Error loading payments:", error);
@@ -218,12 +315,13 @@ export const Payments: React.FC = () => {
     const colors = {
       client: "bg-green-100 text-green-800",
       self: "bg-blue-100 text-blue-800",
+      return: "bg-orange-100 text-orange-800",
+      allocation: "bg-purple-100 text-purple-800",
     };
     return (
       <span
-        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-          colors[type as keyof typeof colors]
-        }`}
+        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${colors[type as keyof typeof colors]
+          }`}
       >
         {type}
       </span>
@@ -293,6 +391,7 @@ export const Payments: React.FC = () => {
   const paymentFromOptions = [
     { value: "client", label: "Client" },
     { value: "self", label: "Self" },
+    { value: "return", label: "Return" },
   ];
 
   const paymentModeOptions = [
@@ -405,6 +504,52 @@ export const Payments: React.FC = () => {
         </form>
       </Modal>
 
+      <Modal
+        isOpen={isAllocateModalOpen}
+        onClose={() => setIsAllocateModalOpen(false)}
+        title="Allocate Budget to Employee"
+        size="lg"
+      >
+        <form onSubmit={handleAllocateSubmit} className="flex flex-col gap-4">
+          <FormField
+            label="Employee"
+            type="select"
+            value={allocateFormData.employee_id}
+            onChange={(value) => setAllocateFormData({ ...allocateFormData, employee_id: value as string })}
+            options={employees.map(emp => ({ value: emp.id, label: `${emp.name} (${emp.role_name})` }))}
+            required
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              label="Amount"
+              type="number"
+              value={allocateFormData.amount}
+              onChange={(value) => setAllocateFormData({ ...allocateFormData, amount: value as string })}
+              required
+            />
+            <FormField
+              label="Date"
+              type="date"
+              value={allocateFormData.allocated_at}
+              onChange={(value) => setAllocateFormData({ ...allocateFormData, allocated_at: value as string })}
+              required
+            />
+          </div>
+          <FormField
+            label="Remarks"
+            type="textarea"
+            value={allocateFormData.remarks}
+            onChange={(value) => setAllocateFormData({ ...allocateFormData, remarks: value as string })}
+          />
+          <div className="flex justify-end space-x-3 pt-6 border-t">
+            <Button type="button" variant="outline" onClick={() => setIsAllocateModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit">Allocate</Button>
+          </div>
+        </form>
+      </Modal>
+
       <div className="space-y-6">
         <div className="mobile-view-disable flex justify-center gap-6 ">
           {StatsCardsData.map((card) => (
@@ -421,13 +566,27 @@ export const Payments: React.FC = () => {
         </div>
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-900">Payments</h2>
-          <Button
-            onClick={() => handleOpenModal()}
-            icon={Plus}
-            iconPosition="left"
-          >
-            Add New
-          </Button>
+          <div className="flex gap-2">
+            <PermissionGuard module="payments" action="create">
+              <Button
+                onClick={() => handleAllocateOpen()}
+                variant="outline"
+                icon={Wallet}
+                iconPosition="left"
+              >
+                Allocate Budget
+              </Button>
+            </PermissionGuard>
+            <PermissionGuard module="payments" action="create">
+              <Button
+                onClick={() => handleOpenModal()}
+                icon={Plus}
+                iconPosition="left"
+              >
+                Add New
+              </Button>
+            </PermissionGuard>
+          </div>
         </div>
 
         <Table
@@ -441,19 +600,25 @@ export const Payments: React.FC = () => {
           }
           actions={(payment) => (
             <>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleOpenModal(payment)}
-                icon={Edit}
-              />
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleDelete(payment.id)}
-                icon={Trash2}
-                className="text-red-600 hover:text-red-700"
-              />
+              <PermissionGuard module="payments" action="edit">
+                {payment.payment_from !== "allocation" && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleOpenModal(payment)}
+                    icon={Edit}
+                  />
+                )}
+              </PermissionGuard>
+              <PermissionGuard module="payments" action="delete">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleDelete(payment)}
+                  icon={Trash2}
+                  className="text-red-600 hover:text-red-700"
+                />
+              </PermissionGuard>
             </>
           )}
         />

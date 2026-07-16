@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { Layout } from "../../components/Layout/Layout";
 import { CustomPieChart } from "../../components/Charts/PieChart";
 import { CustomBarChart } from "../../components/Charts/BarChart";
@@ -6,191 +7,211 @@ import { RecordsChart } from "../../components/Charts/RecordsChart";
 import { mockSites } from "../../data/mockData";
 
 import NoDataFound from "../../components/Common/NoDataFound";
-
 import Utils from "../../helpers/utils";
-
 import { PieChart, Pie, Tooltip } from "recharts";
 
+/* handlers */
+import DashboardHandler from "../../handler/dashboard";
+const dashboardHandler = new DashboardHandler();
+
 export const Dashboard: React.FC = () => {
+  const { siteId } = useParams();
+  const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState<any>(null);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const response = await dashboardHandler.getSiteDashboard({ site_id: siteId });
+      if (response && response.success) {
+        setDashboardData(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (siteId) {
+      fetchDashboardData();
+    }
+  }, [siteId]);
+
+  if (loading) {
+    return (
+      <Layout title="Dashboard">
+        <div className="flex items-center justify-center h-full">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!dashboardData) {
+    return (
+      <Layout title="Dashboard">
+        <NoDataFound message="Unable to load dashboard data" />
+      </Layout>
+    );
+  }
+
+  const { finance, task, expense_breakdown, finance_breakdown, overdue_payments, delayed_tasks, site } = dashboardData;
+
   const FinanceHealth = [
     {
       name: "Project Value",
-      value: 150000,
+      value: finance?.estimated || 0,
       color: "#3b82f6",
     },
     {
       name: "Total Expense",
-      value: 75000,
+      value: finance?.expenses || 0,
       color: "#f59e0b",
     },
     {
       name: "Total Received",
-      value: 50000,
+      value: finance?.received || 0,
       color: "#b916f9ff",
     },
     {
       name: "Profit/Loss",
-      value: 200000,
-      color: "#33c87e",
+      value: finance?.profit || 0,
+      color: finance?.profit >= 0 ? "#33c87e" : "#ef4444",
     },
   ];
 
   const ExpensesBreakdown = [
     {
-      name: "Material Expense",
-      value: 30000,
+      name: "Material",
+      value: expense_breakdown?.material || 0,
       color: "#f59e0b",
     },
     {
-      name: "Labor Expense",
-      value: 40000,
+      name: "Labor",
+      value: expense_breakdown?.labor || 0,
       color: "#ef4444",
     },
     {
-      name: "Site Expense",
-      value: 20000,
+      name: "Petty Cash",
+      value: expense_breakdown?.petty_cash || 0,
       color: "#1091b9ff",
     },
     {
-      name: "Other Expense",
-      value: 20000,
+      name: "Advances",
+      value: expense_breakdown?.vendor_advance || 0,
+      color: "#b916f9ff",
+    },
+    {
+      name: "Other",
+      value: expense_breakdown?.other || 0,
       color: "#b1b1b1ff",
     },
-  ];
+  ].filter(item => item.value > 0);
 
-  const FinanceSummary = [
+  const FinanceSummaryData = [
     {
       name: "Total Amount",
-      value: [10, 20, 30],
+      value: [
+        finance_breakdown?.client?.total || 0,
+        finance_breakdown?.labour?.total || 0,
+        finance_breakdown?.material?.total || 0,
+      ],
       color: "#0065ff",
     },
     {
-      name: "Paid/Received Amount",
-      value: [10, 20, 30],
+      name: "Paid Amount",
+      value: [
+        finance_breakdown?.client?.paid || 0,
+        finance_breakdown?.labour?.paid || 0,
+        finance_breakdown?.material?.paid || 0,
+      ],
       color: "#33c87e",
     },
     {
       name: "Pending Amount",
-      value: [10, 20, 30],
+      value: [
+        finance_breakdown?.client?.pending || 0,
+        finance_breakdown?.labour?.pending || 0,
+        finance_breakdown?.material?.pending || 0,
+      ],
       color: "#ff5b5b",
     },
-  ];
-  const AttendanceSummary = [
-    {
-      name: "Present",
-      value: [10, 20, 30, 10, 20, 30, 30],
-      color: "#33c87e",
-    },
-    {
-      name: "Absent",
-      value: [10, 20, 30, 10, 20, 30, 30],
-      color: "#ff5b5b",
-    },
-    {
-      name: "Half Day",
-      value: [10, 20, 30, 10, 20, 30, 30],
-      color: "#f59e0b",
-    },
-  ];
-  const AttendanceSummaryLabels = [
-    "Sun",
-    "Mon",
-    "Tue",
-    "Wed",
-    "Thu",
-    "Fri",
-    "Sat",
   ];
 
-  const [ProjectProgressStatusChart, setProjectProgressStatusChart] = useState([
+
+  const ProjectProgressStatusChart = [
     {
       name: "Completed",
       fill: "#0088FE",
-      value: 50,
+      value: site?.site_status_percentage || 0,
     },
     {
-      name: "Total",
+      name: "Remaining",
       fill: "#dee2e6",
-      value: 100,
+      value: 100 - (site?.site_status_percentage || 0),
     },
-  ]);
-  const [ProjectTasksChart, setProjectTasksChart] = useState([
+  ];
+
+  const totalTasks = (task?.not_started || 0) + (task?.in_progress || 0) + (task?.completed || 0) + (task?.delayed || 0) + (task?.upcoming || 0);
+
+  const ProjectTasksChartData = [
     {
       name: "Not Started",
-      value: 10,
+      value: task?.not_started || 0,
       fill: "#dee2e6",
-      link: "task-management",
     },
     {
       name: "In Progress",
-      value: 10,
+      value: task?.in_progress || 0,
       fill: "#ebb840",
-      link: "task-management",
     },
     {
       name: "Completed",
-      value: 20,
+      value: task?.completed || 0,
       fill: "#68d083",
-      link: "task-management",
     },
     {
       name: "Upcoming",
-      value: 40,
+      value: task?.upcoming || 0,
       fill: "#8cc7fa",
-      link: "task-management",
     },
     {
       name: "Delayed",
-      value: 20,
+      value: task?.delayed || 0,
       fill: "#e6642e",
-      link: "task-management",
     },
-  ]);
+  ].filter(item => item.value > 0);
 
-  const [ProjectDetails, setProjectDetails] = useState([
+  const ProjectInfo = [
     {
       name: "Project Name",
-      value: "Project 1",
+      value: site?.name || "N/A",
     },
     {
-      name: "Project Status",
-      value: "Ongoing",
+      name: "Status",
+      value: site?.status || "N/A",
     },
     {
-      name: "Client Name",
-      value: "John Doe",
-    },
-  ]);
-
-  const OverduePayments = [
-    {
-      name: "Material",
-      desc: "Material's budget",
-      value: "₹30,000",
-      value_label: "Budget",
-    },
-    {
-      name: "Labor",
-      desc: "Labor's budget",
-      value: "₹40,000",
-      value_label: "Budget",
+      name: "Client",
+      value: site?.client_name || "N/A",
     },
   ];
 
-  const DelayedTasks = [
-    {
-      name: "Task 1",
-      desc: "Start: 05 Oct 25",
-      value: "28",
-      value_label: "days",
-    },
-    {
-      name: "Task 2",
-      desc: "Start: 05 Oct 25",
-      value: "28",
-      value_label: "days",
-    },
-  ];
+  const OverduePaymentsData = overdue_payments?.map((p: any) => ({
+    name: "Payment",
+    desc: `Due: ${new Date(p.date).toLocaleDateString()}`,
+    value: Utils.formatCurrency(p.amount),
+    value_label: "Overdue",
+  })) || [];
+
+  const DelayedTasksData = delayed_tasks?.map((t: any) => ({
+    name: t.name,
+    desc: t.date ? `Deadline: ${new Date(t.date).toLocaleDateString()}` : "No deadline",
+    value: t.days.toString(),
+    value_label: "days",
+  })) || [];
 
   return (
     <Layout title="Dashboard">
@@ -215,7 +236,7 @@ export const Dashboard: React.FC = () => {
                 </Pie>
               </PieChart>
               <label className="text-sm font-bold text-gray-900 text-center -mt-10">
-                50% <br />
+                {site?.site_status_percentage || 0}% <br />
                 Completed
               </label>
             </div>
@@ -226,7 +247,7 @@ export const Dashboard: React.FC = () => {
                     Planned Start Date:
                   </span>
                   <span className="w-[max-content] text-sm font-bold text-gray-900 bg-gray-100 p-1 px-2 rounded-md">
-                    01 Jan 2024
+                    {site?.planned_start_date ? new Date(site.planned_start_date).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
                 <div className="flex flex-col gap-1">
@@ -234,7 +255,7 @@ export const Dashboard: React.FC = () => {
                     Planned End Date:
                   </span>
                   <span className="w-[max-content] text-sm font-bold text-gray-900 bg-gray-100 p-1 px-2 rounded-md">
-                    01 Jan 2024
+                    {site?.planned_end_date ? new Date(site.planned_end_date).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
               </div>
@@ -244,7 +265,7 @@ export const Dashboard: React.FC = () => {
                     Actual Start Date:
                   </span>
                   <span className="w-[max-content] text-sm font-bold text-gray-900 bg-gray-100 p-1 px-2 rounded-md">
-                    01 Jan 2024
+                    {site?.actual_start_date ? new Date(site.actual_start_date).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
                 <div className="flex flex-col gap-1">
@@ -252,7 +273,7 @@ export const Dashboard: React.FC = () => {
                     Actual End Date:
                   </span>
                   <span className="w-[max-content] text-sm font-bold text-gray-900 bg-gray-100 p-1 px-2 rounded-md">
-                    01 Jan 2024
+                    {site?.actual_end_date ? new Date(site.actual_end_date).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
               </div>
@@ -262,7 +283,7 @@ export const Dashboard: React.FC = () => {
             <div className="relative flex flex-col items-center">
               <PieChart width={170} height={90}>
                 <Pie
-                  data={ProjectTasksChart}
+                  data={ProjectTasksChartData.length > 0 ? ProjectTasksChartData : [{ name: "No Tasks", value: 1, fill: "#f3f4f6" }]}
                   cx={80}
                   cy={80}
                   startAngle={180}
@@ -279,11 +300,11 @@ export const Dashboard: React.FC = () => {
               <label className="text-sm text-gray-900 text-center -mt-10">
                 Tasks
                 <br />
-                10/100
+                {task?.completed || 0}/{totalTasks}
               </label>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {ProjectTasksChart.map((item, index) => (
+              {ProjectTasksChartData.map((item, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <span
                     className="w-3 h-3 rounded-md mb-1"
@@ -296,13 +317,13 @@ export const Dashboard: React.FC = () => {
               ))}
             </div>
           </div>
-          <div className="w-full grid grid-cols-3 gap-4 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
-            {ProjectDetails?.map((item, index) => (
-              <div key={index} className="flex flex-col gap-1">
+          <div className="w-full grid grid-cols-1 gap-2 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+            {ProjectInfo?.map((item, index) => (
+              <div key={index} className="flex items-center justify-between gap-1 border-b border-gray-50 pb-1">
                 <span className="text-xs text-gray-600 whitespace-nowrap">
                   {item.name}:
                 </span>
-                <span className="w-[max-content] text-sm font-bold text-gray-900 bg-gray-100 p-1 px-2 rounded-md">
+                <span className="text-sm font-bold text-gray-900">
                   {item.value}
                 </span>
               </div>
@@ -316,12 +337,12 @@ export const Dashboard: React.FC = () => {
             showLegend={true}
           />
           <CustomPieChart
-            data={ExpensesBreakdown}
+            data={ExpensesBreakdown.length > 0 ? ExpensesBreakdown : [{ name: "No Expenses", value: 1, color: "#f3f4f6" }]}
             title="Expense Breakdown"
             showLegend={true}
           />
           <CustomBarChart
-            data={FinanceSummary}
+            data={FinanceSummaryData}
             title="Financial Breakdown"
             color="#ef4444"
             showLegend={true}
@@ -329,30 +350,20 @@ export const Dashboard: React.FC = () => {
             categories={["Client", "Labour", "Material"]}
           />
         </div>
-        <div className="grid grid-cols-1  gap-4">
-          <CustomBarChart
-            data={AttendanceSummary}
-            title="Labour Attendance (last 7 days)"
-            color="#ef4444"
-            showLegend={true}
-            customSeries={true}
-            categories={AttendanceSummaryLabels}
-          />
-        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <RecordsChart
-            data={OverduePayments}
+            data={OverduePaymentsData}
             title="Overdue Payments"
             color="#ef4444"
           />
           <RecordsChart
-            data={DelayedTasks}
+            data={DelayedTasksData}
             title="Delayed Tasks"
-            color="#f59e0b"
+            color="#ef4444"
           />
           <RecordsChart
-            data={DelayedTasks}
-            title="Delayed Tasks"
+            data={DelayedTasksData} // Reusing for placeholder as in original
+            title="Action Items"
             color="#f59e0b"
           />
         </div>

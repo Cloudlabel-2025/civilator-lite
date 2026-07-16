@@ -8,6 +8,7 @@ import { Plus, Edit, Trash2 } from "lucide-react";
 import { Employee } from "../types";
 import EmployeesHandler from "../handler/employees";
 import RolesHandler from "../handler/roles";
+import { PermissionGuard } from "../components/Common/PermissionGuard";
 
 export const Employees: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -75,6 +76,7 @@ export const Employees: React.FC = () => {
         response = await employeesHandler.post(employeeData);
       }
       if (!response.success) {
+        alert((response as any).message || "Error saving employee");
         return;
       }
       loadEmployees();
@@ -233,13 +235,15 @@ export const Employees: React.FC = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-900">All Employees</h2>
-          <Button
-            onClick={() => handleOpenModal()}
-            icon={Plus}
-            iconPosition="left"
-          >
-            Add New Employee
-          </Button>
+          <PermissionGuard module="employees" action="create">
+            <Button
+              onClick={() => handleOpenModal()}
+              icon={Plus}
+              iconPosition="left"
+            >
+              Add New Employee
+            </Button>
+          </PermissionGuard>
         </div>
 
         {/* Employees Table */}
@@ -250,19 +254,23 @@ export const Employees: React.FC = () => {
           mobileCardSubtitle={(employee) => employee.role_name}
           actions={(employee) => (
             <>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleOpenModal(employee)}
-                icon={Edit}
-              />
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleDelete(employee.id)}
-                icon={Trash2}
-                className="text-red-600 hover:text-red-700"
-              />
+              <PermissionGuard module="employees" action="edit">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleOpenModal(employee)}
+                  icon={Edit}
+                />
+              </PermissionGuard>
+              <PermissionGuard module="employees" action="delete">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleDelete(employee.id)}
+                  icon={Trash2}
+                  className="text-red-600 hover:text-red-700"
+                />
+              </PermissionGuard>
             </>
           )}
         />

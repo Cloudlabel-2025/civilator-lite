@@ -10,6 +10,7 @@ import { UnitOptions } from "../data/constants";
 import MaterialsHandler from "../handler/master_materials";
 import BrandsHandler from "../handler/master_brands";
 import LaboursHandler from "../handler/master_labours";
+import { PermissionGuard } from "../components/Common/PermissionGuard";
 
 export const MasterDatabase: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"materials" | "brands" | "labour">(
@@ -539,11 +540,10 @@ export const MasterDatabase: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
+                  className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === tab.id
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    }`}
                 >
                   <Icon className="w-4 h-4" />
                   <span>{tab.label}</span>
@@ -561,13 +561,15 @@ export const MasterDatabase: React.FC = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-gray-900">Materials</h2>
-              <Button
-                onClick={() => handleOpenMaterialModal()}
-                icon={Plus}
-                iconPosition="left"
-              >
-                Add Material
-              </Button>
+              <PermissionGuard module="masterDatabase" action="create">
+                <Button
+                  onClick={() => handleOpenMaterialModal()}
+                  icon={Plus}
+                  iconPosition="left"
+                >
+                  Add Material
+                </Button>
+              </PermissionGuard>
             </div>
 
             <Table
@@ -575,25 +577,28 @@ export const MasterDatabase: React.FC = () => {
               data={materials}
               mobileCardTitle={(material) => material.name}
               mobileCardSubtitle={(material) =>
-                `${
-                  material.unit
+                `${material.unit
                 } • Max: ₹${material.maxUnitAmount.toLocaleString()}`
               }
               actions={(material) => (
                 <>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleOpenMaterialModal(material)}
-                    icon={Edit}
-                  />
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleDeleteMaterial(material.id)}
-                    icon={Trash2}
-                    className="text-red-600 hover:text-red-700"
-                  />
+                  <PermissionGuard module="masterDatabase" action="edit">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleOpenMaterialModal(material)}
+                      icon={Edit}
+                    />
+                  </PermissionGuard>
+                  <PermissionGuard module="masterDatabase" action="delete">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDeleteMaterial(material.id)}
+                      icon={Trash2}
+                      className="text-red-600 hover:text-red-700"
+                    />
+                  </PermissionGuard>
                 </>
               )}
             />
@@ -605,13 +610,15 @@ export const MasterDatabase: React.FC = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-gray-900">Brands</h2>
-              <Button
-                onClick={() => handleOpenBrandModal()}
-                icon={Plus}
-                iconPosition="left"
-              >
-                Add Brand
-              </Button>
+              <PermissionGuard module="masterDatabase" action="create">
+                <Button
+                  onClick={() => handleOpenBrandModal()}
+                  icon={Plus}
+                  iconPosition="left"
+                >
+                  Add Brand
+                </Button>
+              </PermissionGuard>
             </div>
 
             <Table
@@ -621,19 +628,23 @@ export const MasterDatabase: React.FC = () => {
               mobileCardSubtitle={(brand) => brand.description}
               actions={(brand) => (
                 <>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleOpenBrandModal(brand)}
-                    icon={Edit}
-                  />
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleDeleteBrand(brand.id)}
-                    icon={Trash2}
-                    className="text-red-600 hover:text-red-700"
-                  />
+                  <PermissionGuard module="masterDatabase" action="edit">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleOpenBrandModal(brand)}
+                      icon={Edit}
+                    />
+                  </PermissionGuard>
+                  <PermissionGuard module="masterDatabase" action="delete">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDeleteBrand(brand.id)}
+                      icon={Trash2}
+                      className="text-red-600 hover:text-red-700"
+                    />
+                  </PermissionGuard>
                 </>
               )}
             />
@@ -647,13 +658,15 @@ export const MasterDatabase: React.FC = () => {
               <h2 className="text-xl font-semibold text-gray-900">
                 Labour Types
               </h2>
-              <Button
-                onClick={() => handleOpenLabourModal()}
-                icon={Plus}
-                iconPosition="left"
-              >
-                Add Labour's Type
-              </Button>
+              <PermissionGuard module="masterDatabase" action="create">
+                <Button
+                  onClick={() => handleOpenLabourModal()}
+                  icon={Plus}
+                  iconPosition="left"
+                >
+                  Add Labour's Type
+                </Button>
+              </PermissionGuard>
             </div>
 
             <Table
@@ -665,19 +678,23 @@ export const MasterDatabase: React.FC = () => {
               }
               actions={(labour) => (
                 <>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleOpenLabourModal(labour)}
-                    icon={Edit}
-                  />
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleDeleteLabour(labour.id)}
-                    icon={Trash2}
-                    className="text-red-600 hover:text-red-700"
-                  />
+                  <PermissionGuard module="masterDatabase" action="edit">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleOpenLabourModal(labour)}
+                      icon={Edit}
+                    />
+                  </PermissionGuard>
+                  <PermissionGuard module="masterDatabase" action="delete">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDeleteLabour(labour.id)}
+                      icon={Trash2}
+                      className="text-red-600 hover:text-red-700"
+                    />
+                  </PermissionGuard>
                 </>
               )}
             />

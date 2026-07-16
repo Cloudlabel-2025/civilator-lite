@@ -16,9 +16,11 @@ const payments = require("./payments/payments");
 const inventory = require("./inventory/inventory");
 const tasks = require("./tasks/tasks");
 const attendances = require("./attendances/attendances");
+const dashboard = require("./dashboard/dashboard");
+const budgetAllocations = require("./payments/budget_allocations");
+const NotificationRoutes = require("./notifications/notifications");
 
 const public = require("./public/public");
-
 
 
 Routes.use('/auth', auth)
@@ -36,6 +38,9 @@ Routes.use('/payments', payments)
 Routes.use('/inventory', inventory)
 Routes.use('/tasks', tasks)
 Routes.use('/attendances', attendances)
+Routes.use('/dashboard', dashboard)
+Routes.use('/budget-allocations', budgetAllocations)
+Routes.use('/notifications', NotificationRoutes);
 Routes.use('/public', public)
 
 

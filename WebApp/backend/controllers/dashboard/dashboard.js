@@ -12,23 +12,48 @@ class DashboardController {
 
     async getSiteDashboard(req, res) {
         try {
-
             const { org_id } = req
+            const { site_id } = req.query
 
-            const { site_id, start_date, end_date } = req.query
+            console.log(`[Dashboard] Fetching for Site: ${site_id}, Org: ${org_id}`);
+
+            if (!site_id || !ObjectId.isValid(site_id)) {
+                console.log(`[Dashboard] Invalid Site ID: ${site_id}`);
+                return responseHandler.failedRequest({
+                    name: 'getSiteDashboard',
+                    req, res,
+                    message: "Invalid or missing site id"
+                })
+            }
+
+            const now = new Date()
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+            // 1. Fetch Site Details for basic info and estimated value
+            const site = await req.mongoDB.findOne(mongoCollections.SITES, { _id: new ObjectId(site_id), org_id })
+
+            console.log(`[Dashboard] Site Found: ${site ? site.name : 'NO'}`);
+
+            if (!site) {
+                return responseHandler.failedRequest({
+                    name: 'getSiteDashboard',
+                    req, res,
+                    message: "Site not found"
+                })
+            }
 
             const dashboard_data = {
                 site: {
-                    site_status_percentage: 0,
-                    planned_start_date: '',
-                    planned_end_date: '',
-                    actual_start_date: '',
-                    actual_end_date: '',
-                    name: '',
-                    status: '',
-                    client_id: '',
-                    client_name: '',
-                    client_phone: '',
+                    site_status_percentage: site.completionPercentage || 0,
+                    planned_start_date: site.startDate || '',
+                    planned_end_date: site.endDate || '',
+                    actual_start_date: site.actual_start_date || site.startDate || '',
+                    actual_end_date: site.actual_end_date || '',
+                    name: site.name || '',
+                    status: site.status || '',
+                    client_id: site.client_id || '',
+                    client_name: site.client?.name || '',
+                    client_phone: site.client?.phone || '',
                 },
                 task: {
                     not_started: 0,
@@ -38,9 +63,10 @@ class DashboardController {
                     delayed: 0,
                 },
                 finance: {
-                    estimated: 0,
+                    estimated: parseFloat(site.estimateAmount || 0),
                     expenses: 0,
                     received: 0,
+                    budget_allocated: 0,
                     profit: 0,
                 },
                 expense_breakdown: {
@@ -53,7 +79,7 @@ class DashboardController {
                 },
                 finance_breakdown: {
                     client: {
-                        total: 0,
+                        total: parseFloat(site.estimateAmount || 0),
                         paid: 0,
                         pending: 0,
                     },
@@ -68,61 +94,87 @@ class DashboardController {
                         pending: 0,
                     },
                 },
-                labour_attendance: [],
                 overdue_payments: [],
                 delayed_tasks: [],
                 upcoming_tasks: []
             }
 
-            const now = new Date()
-            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-
-            // Labour attendance - last 7 days
-            const attendance = await req.mongoDB.find(mongoCollections.labour_attendance,
-                { site_id: ObjectId(site_id), date: { $gte: sevenDaysAgo } })
-
-            const attendanceMap = {}
-            attendance.forEach(record => {
-                const dateStr = record.date.toISOString().split('T')[0]
-                if (!attendanceMap[dateStr]) attendanceMap[dateStr] = { present: 0, absent: 0, halfday: 0 }
-                attendanceMap[dateStr][record.status]++
+            // 2. Fetch Tasks and calculate counts
+            const tasksResult = await req.mongoDB.find(mongoCollections.TASKS, { site_id: site_id, org_id })
+            const tasks = tasksResult.items || []
+            console.log(`[Dashboard] Tasks Found: ${tasks.length}`);
+            tasks.forEach(task => {
+                if (task.status === 'completed') dashboard_data.task.completed++
+                else if (task.status === 'in-progress') dashboard_data.task.in_progress++
+                else if (task.status === 'delayed') dashboard_data.task.delayed++
+                else if (task.status === 'upcoming') dashboard_data.task.upcoming++
+                else dashboard_data.task.not_started++
             })
 
-            dashboard_data.labour_attendance = Object.entries(attendanceMap)
-                .map(([date, counts]) => ({ date, ...counts }))
+            // 3. Fetch Expenses and calculate breakdown
+            const expensesResult = await req.mongoDB.find(mongoCollections.EXPENSES, { site_id: site_id, org_id })
+            const expensesList = expensesResult.items || []
+            console.log(`[Dashboard] Expenses Found: ${expensesList.length}`);
+            expensesList.forEach(exp => {
+                const amount = parseFloat(exp.amount || 0)
+                dashboard_data.finance.expenses += amount
+                dashboard_data.expense_breakdown.total += amount
 
-            // Overdue payments
-            const [labourPayments, expenses, materials] = await Promise.all([
-                req.mongoDB.find(mongoCollections.labour_payments,
-                    { site_id: ObjectId(site_id), due_date: { $lt: now }, status: { $ne: 'paid' } }),
-                req.mongoDB.find(mongoCollections.expenses,
-                    { site_id: ObjectId(site_id), due_date: { $lt: now }, status: { $ne: 'paid' } }),
-                req.mongoDB.find(mongoCollections.material_procurement,
-                    { site_id: ObjectId(site_id), due_date: { $lt: now }, status: { $ne: 'paid' } })
-            ])
+                const cat = exp.category?.toLowerCase() || ''
+                if (cat.includes('material')) dashboard_data.expense_breakdown.material += amount
+                else if (cat.includes('labor') || cat.includes('labour')) dashboard_data.expense_breakdown.labor += amount
+                else if (cat.includes('petty')) dashboard_data.expense_breakdown.petty_cash += amount
+                else if (cat.includes('advance')) dashboard_data.expense_breakdown.vendor_advance += amount
+                else dashboard_data.expense_breakdown.other += amount
+            })
 
-            dashboard_data.overdue_payments = [...labourPayments, ...expenses, ...materials]
-                .map(item => ({ id: item._id, date: item.due_date, amount: item.amount }))
+            // 4. Fetch Payments (Total Site Funds)
+            const paymentsResult = await req.mongoDB.find(mongoCollections.PAYMENTS, { site_id: site_id, org_id })
+            const payments = paymentsResult.items || []
+            console.log(`[Dashboard] Payments Found: ${payments.length}`);
 
-            // Delayed tasks
-            const delayedTasks = await req.mongoDB.find(mongoCollections.tasks,
-                { site_id: ObjectId(site_id), end_date: { $lt: now }, status: { $ne: 'completed' } })
+            let totalIncome = 0
+            payments.forEach(payment => {
+                const amount = parseFloat(payment.amount || 0)
+                if (payment.payment_from === 'return') {
+                    // Return doesn't add to totalIncome inflow, it's a deduction from builder investment
+                    // But user wants it added to client revenue tracking
+                    dashboard_data.finance_breakdown.client.paid += amount
+                } else {
+                    totalIncome += amount
+                    if (payment.payment_from === 'client') {
+                        dashboard_data.finance_breakdown.client.paid += amount
+                    }
+                }
+            })
+            dashboard_data.finance.received = totalIncome
+            dashboard_data.finance_breakdown.client.pending = dashboard_data.finance_breakdown.client.total - (dashboard_data.finance_breakdown.client.paid)
 
-            dashboard_data.delayed_tasks = delayedTasks.map(task => ({
-                id: task._id,
-                date: task.end_date,
-                days: Math.ceil((now - task.end_date) / (1000 * 60 * 60 * 24))
-            }))
+            // 5. Fetch Budget Allocations (Only Accepted)
+            const budgetResults = await req.mongoDB.find(mongoCollections.BUDGET_ALLOCATIONS, { site_id: site_id, org_id, status: 'accepted' })
+            const budgetList = budgetResults.items || []
+            let totalAllocated = 0;
+            budgetList.forEach(budget => {
+                totalAllocated += parseFloat(budget.amount || 0)
+                // Note: We keep the user's previous request to reduce this from "received" funds logic if still needed, 
+                // but usually, budget allocated is a subset of received funds.
+            })
 
-            // Upcoming tasks
-            const upcomingTasks = await req.mongoDB.find(mongoCollections.tasks,
-                { site_id: ObjectId(site_id), start_date: { $gt: now } })
+            // Budget Allocated card now shows REMAINING budget (Total Allocated - Total Expenses)
+            dashboard_data.finance.budget_allocated = totalAllocated - dashboard_data.finance.expenses;
 
-            dashboard_data.upcoming_tasks = upcomingTasks.map(task => ({
-                id: task._id,
-                date: task.start_date,
-                days: Math.ceil((task.start_date - now) / (1000 * 60 * 60 * 24))
-            }))
+            // 6. Calculate Profit (Received from Client - Total Expenses)
+            dashboard_data.finance.profit = dashboard_data.finance.received - dashboard_data.finance.expenses
+
+
+            // 7. Delayed tasks details
+            dashboard_data.delayed_tasks = tasks
+                .filter(task => task.status === 'delayed' || (task.status !== 'completed' && task.end_date && new Date(task.end_date) < now))
+                .map(task => ({
+                    name: task.name,
+                    date: task.end_date,
+                    days: task.end_date ? Math.ceil((now - new Date(task.end_date)) / (1000 * 60 * 60 * 24)) : 0
+                }))
 
             return responseHandler.successRequest({
                 name: 'getSiteDashboard',
@@ -133,7 +185,7 @@ class DashboardController {
 
         } catch (err) {
             console.log(err);
-            return responseHandler.serverError({ name: 'getAllMasterbrands', req, res })
+            return responseHandler.serverError({ name: 'getSiteDashboard', req, res })
         }
     }
 
